@@ -21,8 +21,15 @@ internal static class Program
 
             return 1;
         }*/
-		
-        // Work
+
+        var tokenParser = new TokenParser();
+
+        var tokens = tokenParser.StringToTokens("public struct StructName\n{\n\tstruct StructName1\n\t{\n\t\tinternal bool Zf;\n\t}\n\t\n\tprivate int[,]? Name;\n}");
+
+        foreach (var token in tokens)
+        {
+            Console.WriteLine($"{token.Value} {token.PositionInSource}");
+        }
 
         return 0;
     }
