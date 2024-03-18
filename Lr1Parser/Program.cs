@@ -28,7 +28,7 @@ internal static class Program
 
         foreach (var token in tokens)
         {
-            Console.WriteLine($"{token.Value} {token.PositionInSource}");
+            Console.WriteLine($"{token.Value} {token.IndexInSource}");
         }
 
         return 0;
