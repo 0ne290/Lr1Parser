@@ -2,20 +2,21 @@ namespace Lr1Parser;
 
 public class Rule
 {
-    public Rule(Nonterminal leftSide, IEnumerable<IGrammarToken> rightSide)
+    private Rule(Nonterminal leftSide, IEnumerable<IGrammarToken> rightSide)
     {
         LeftSide = leftSide;
         RightSide = rightSide;
-        
-        Rules.Add(this);
     }
 
-    public IEnumerable<Rule> ParseRule(string rule)
+    public bool AddRuleBySides(Nonterminal leftSide, IEnumerable<IGrammarToken> rightSide)
     {
-        var sides = rule.Split('=');
+        if (!Rules.Exists(r => r.LeftSide == leftSide && r.RightSide.SequanceEqual(rightSide, new GrammarTokenComparer())))
+        {
+            Rules.Add(new Rule(leftSide, rightSide));
+            return true;
+        }
 
-        if (sides.Length != 2)
-            throw new Exception("");
+        return false;
     }
 
     public IEnumerable<Rule> GetRulesByLeftSides(Nonterminal leftSide) => Rules.Where(r => r.LeftSide == leftSide);
