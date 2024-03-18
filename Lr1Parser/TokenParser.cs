@@ -20,8 +20,16 @@ public partial class TokenParser
             while ((occurrenceIndex = copyOfSource.ToString().IndexOf(delimitedKeyword, StringComparison.Ordinal)) > -1)
             {
                 var keyword = delimitedKeyword.Remove(delimitedKeyword.Length - 1);
-                tokens[occurrenceIndex].Value = keyword;
-                tokens[occurrenceIndex].PositionInSource = occurrenceIndex;
+                
+                var terminal = Terminal.GetTerminalByValue(keyword);
+                
+                if (terminal == null)
+                    throw new Exception(
+                        $"Ключевое слово \"{keyword}\" не является частью языка. Вообще-то этой ошибки не должно быть - обратитесь к разработчику.");
+
+                tokens[occurrenceIndex].Value = terminal;
+                
+                tokens[occurrenceIndex].IndexInSource = occurrenceIndex;
                 copyOfSource.Replace(keyword, new string(' ', keyword.Length), occurrenceIndex, keyword.Length);
             }
         }
@@ -35,14 +43,13 @@ public partial class TokenParser
 
             if (terminal == null)
             {
-                var errorMessenger = new ErrorMessenger(source);
-                var errorPosition = errorMessenger.GetErrorMessageByStringToken(i);
+                var position = source.GetPosition(i);
                 throw new Exception(
-                    $"Токен не принадлежит алфавиту языка. Строка: {errorPosition.Item1}; токен {errorPosition.Item2}");
+                    $"Токен '{copyOfSource[i]}' не принадлежит алфавиту языка. Номер строки: {position.LineNumber}, номер токена: {position.CharNumber}.");
             }
             
             tokens[i].Value = terminal;
-            tokens[i].PositionInSource = i;
+            tokens[i].IndexInSource = i;
         }
 	
         return tokens.Where(t => t.Value != Terminal.Default).ToArray();

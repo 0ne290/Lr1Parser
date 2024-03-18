@@ -4,5 +4,5 @@ public class StringToken
 {
     public Terminal Value { get; set; } = Terminal.Default;
     
-    public int PositionInSource { get; set; }
+    public int IndexInSource { get; set; }
 }
