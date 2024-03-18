@@ -5,14 +5,14 @@ namespace Lr1Parser;
 
 public partial class TokenParser
 {
-    public Token[] StringToTokens(string source)
+    public StringToken[] StringToTokens(string source)
     {
         var copyOfSource = new StringBuilder(Whitespaces().Replace(source, " "));
 	
-        var tokens = new List<Token>(copyOfSource.Length);
+        var tokens = new List<StringToken>(copyOfSource.Length);
 	
         for (var i = 0; i < tokens.Capacity; i++)
-            tokens.Add(new Token());
+            tokens.Add(new StringToken());
 
         foreach (var delimitedKeyword in DelimitedKeywords)
         {
@@ -30,12 +30,22 @@ public partial class TokenParser
         {
             if (copyOfSource[i] == ' ')
                 continue;
+
+            var terminal = Terminal.GetTerminalByValue(copyOfSource[i].ToString());
+
+            if (terminal == null)
+            {
+                var errorMessenger = new ErrorMessenger(source);
+                var errorPosition = errorMessenger.GetErrorMessageByStringToken(i);
+                throw new Exception(
+                    $"Токен не принадлежит алфавиту языка. Строка: {errorPosition.Item1}; токен {errorPosition.Item2}");
+            }
             
-            tokens[i].Value = copyOfSource[i].ToString();
+            tokens[i].Value = terminal;
             tokens[i].PositionInSource = i;
         }
 	
-        return tokens.Where(t => t.Value != string.Empty).ToArray();
+        return tokens.Where(t => t.Value != Terminal.Default).ToArray();
     }
 
     private static readonly IEnumerable<string> DelimitedKeywords = new[]

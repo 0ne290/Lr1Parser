@@ -1,8 +1,6 @@
 namespace Lr1Parser;
 
-public class Token
+public class Nonterminal : IGrammarToken
 {
     public string Value { get; set; } = string.Empty;
-    
-    public int PositionInSource { get; set; }
 }
