@@ -2,7 +2,7 @@ namespace Lr1Parser;
 
 public class Rule
 {
-    private Rule(Nonterminal leftSide, IEnumerable<IGrammarToken> rightSide)
+    public Rule(Nonterminal leftSide, IEnumerable<IGrammarToken> rightSide)
     {
         LeftSide = leftSide;
         RightSide = rightSide;

@@ -10,11 +10,11 @@ public class GrammarParser
     {
         _grammar = new Lr1Grammar();
 
-        var lines = PrepareLines();
+        var rules = PrepareLines();
         
-        ParseNonterminals(lines);
-        ParseTerminals(lines);
-        ParseRules(lines);
+        ParseNonterminals(rules);
+        ParseTerminals(rules);
+        ParseRules(rules);
 
         return _grammar;
     }
@@ -27,46 +27,78 @@ public class GrammarParser
         if (lines.Count == 0)
             throw new Exception("Грамматика пустая.");
 
-        var preparedLines = new string[lines.Count, 2];
+        var rules = new string[lines.Count, 2];
 
         for (var i = 0; i < lines.Count; i++)
         {
-            var lineSides = lines[i].Split('=');
+            var sides = lines[i].Split('=');
 
-            if (lineSides.Length != 2)
+            if (sides.Length != 2)
                 throw new Exception($"Правило под номером {i + 1} задано некорректно.");
 
-            lineSides[0] = lineSides[0].Trim();
-            lineSides[1] = lineSides[1].Trim();
-            lineSides[1] = RegularExpressions.WhitespaceSequence().Replace(lineSides[1], " ");
+            sides[0] = sides[0].Trim();
+            sides[1] = sides[1].Trim();
+            sides[1] = RegularExpressions.WhitespaceSequence().Replace(sides[1], " ");
             
-            if (RegularExpressions.Whitespace().IsMatch(lineSides[0]))
+            if (RegularExpressions.Whitespace().IsMatch(sides[0]))
                 throw new Exception($"Разделительные символы не могут быть частью языка. Нетерминал в правиле под номером {i + 1} противоречит этому условию.");
             
-            preparedLines[i, 0] = lineSides[0].Trim();
-            preparedLines[i, 1] = lineSides[1].Trim();
+            rules[i, 0] = sides[0].Trim();
+            rules[i, 1] = sides[1].Trim();
         }
 
-        return preparedLines;
+        return rules;
     }
 
-    private void ParseRules(string[,] lines)
+    private void ParseRules(string[,] rules)
     {
-        var sides = rule.Split('=');
+        for (var i = 0; i < rules.GetLength(0); i++)
+        {
+            var subrulesRightSides = rules[i, 1].Split(" | ");
 
-        if (sides.Length != 2)
-            throw new Exception("Правило задано некорректно.");
+            foreach (var serializedSubruleRightSide in subrulesRightSides)
+            {
+                var rightSideTokens = serializedSubruleRightSide.Split(' ');
 
+                var deserializedSubruleRightSide = new List<IGrammarToken>();
 
+                foreach (var rightSideToken in rightSideTokens)
+                {
+                    IGrammarToken grammarToken = _grammar.GetTerminalByValue(rightSideToken);
+                    
+                    if (!grammarToken.IsEmpty())
+                    {
+                        deserializedSubruleRightSide.Add(grammarToken);
+                        continue;
+                    }
+
+                    grammarToken = _grammar.GetNonterminalByValue(rightSideToken);
+                    if (!grammarToken.IsEmpty())
+                    {
+                        deserializedSubruleRightSide.Add(grammarToken);
+                        continue;
+                    }
+
+                    throw new Exception("Во время анализа правил встретился неизвестный токен. Вообще-то этой ошибки не должно быть - обратитесь к разработчику.");
+                }
+
+                var deserializedSubruleLeftSide = _grammar.GetNonterminalByValue(rules[i, 0]);
+                
+                if (deserializedSubruleLeftSide.IsEmpty())
+                    throw new Exception("Во время анализа правил встретился неизвестный токен. Вообще-то этой ошибки не должно быть - обратитесь к разработчику.");
+
+                _grammar.AddRule(new Rule(deserializedSubruleLeftSide, deserializedSubruleRightSide));
+            }
+        }
     }
     
-    private void ParseTerminals(string[,] lines)
+    private void ParseTerminals(string[,] rules)
     {
-        for (var i = 0; i < lines.GetLength(0); i++)
+        for (var i = 0; i < rules.GetLength(0); i++)
         {
-            var rightSide = lines[i, 1].Split(' ');
+            var rightSideTokens = rules[i, 1].Split(' ');
 
-            foreach (var token in rightSide)
+            foreach (var token in rightSideTokens)
             {
                 if (!_grammar.GetNonterminalByValue(token).IsEmpty())
                     continue;
@@ -107,10 +139,10 @@ public class GrammarParser
                 _grammar.AddTerminal(new Terminal(((char)i).ToString()));
     }
 
-    private void ParseNonterminals(string[,] lines)
+    private void ParseNonterminals(string[,] rules)
     {
-        for (var i = 0; i < lines.GetLength(0); i++)
-            _grammar.AddNonterminal(new Nonterminal(lines[i, 0]));
+        for (var i = 0; i < rules.GetLength(0); i++)
+            _grammar.AddNonterminal(new Nonterminal(rules[i, 0]));
     }
     
     public string Source { get; set; }
