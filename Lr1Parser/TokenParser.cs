@@ -3,11 +3,11 @@ using System.Text.RegularExpressions;
 
 namespace Lr1Parser;
 
-public partial class TokenParser
+public class TokenParser
 {
     public StringToken[] StringToTokens(string source)
     {
-        var copyOfSource = new StringBuilder(Whitespaces().Replace(source, " "));
+        var copyOfSource = new StringBuilder(RegularExpressions.Whitespaces().Replace(source, " "));
 	
         var tokens = new List<StringToken>(copyOfSource.Length);
 	
@@ -52,7 +52,7 @@ public partial class TokenParser
             tokens[i].IndexInSource = i;
         }
 	
-        return tokens.Where(t => t.Value != Terminal.Default).ToArray();
+        return tokens.Where(t => !t.Value.IsEmpty()).ToArray();
     }
 
     private static readonly IEnumerable<string> DelimitedKeywords = new[]
@@ -67,7 +67,4 @@ public partial class TokenParser
         "char ", "char[", "char?",
         "string ", "string[", "string?"
     };
-
-    [GeneratedRegex("[\\s]")]
-    private static partial Regex Whitespaces();
 }
