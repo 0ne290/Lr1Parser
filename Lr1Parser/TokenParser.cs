@@ -7,7 +7,7 @@ public class TokenParser
 {
     public StringToken[] StringToTokens(string source)
     {
-        var copyOfSource = new StringBuilder(RegularExpressions.Whitespaces().Replace(source, " "));
+        var copyOfSource = new StringBuilder(RegularExpressions.Whitespace().Replace(source, " "));
 	
         var tokens = new List<StringToken>(copyOfSource.Length);
 	
