@@ -5,9 +5,18 @@ namespace Lr1Parser;
 
 public class TokenParser
 {
+    public TokenParser(string source, string specialCharacters, Lr1Grammar grammar)
+    {
+        Source = source;
+        SpecialCharacters = specialCharacters;
+        Grammar = grammar;
+    }
+    
     public StringToken[] StringToTokens(string source)
     {
         var copyOfSource = new StringBuilder(RegularExpressions.Whitespace().Replace(source, " "));
+
+        copyOfSource.Insert(0, ' ');// Для корректного распознавания ключевых слов, в начале входной последовательности должен быть символ-разделитель
 	
         var tokens = new List<StringToken>(copyOfSource.Length);
 	
@@ -54,6 +63,12 @@ public class TokenParser
 	
         return tokens.Where(t => !t.Value.IsEmpty()).ToArray();
     }
+    
+    public string Source { get; set; }
+    
+    public string SpecialCharacters { get; set; }
+    
+    public Lr1Grammar Grammar { get; set; }
 
     private static readonly IEnumerable<string> DelimitedKeywords = new[]
     {
