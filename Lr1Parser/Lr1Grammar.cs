@@ -30,6 +30,8 @@ public class Lr1Grammar
 
     public Terminal GetTerminalByValue(string value) =>
         _terminals.Find(t => t.Value == value) ?? Terminal.Empty;
+
+    public IEnumerable<Terminal> GetKeywords() => _terminals.FindAll(t => t.Value.Length > 1);
     
     public bool AddNonterminal(Nonterminal nonterminal)
     {
@@ -46,9 +48,9 @@ public class Lr1Grammar
     public Nonterminal GetNonterminalByValue(string value) =>
         _nonterminals.Find(n => n.Value == value) ?? Nonterminal.Empty;
 
-    private readonly List<Rule> _rules = new();
+    public readonly List<Rule> _rules = new();
 
-    private readonly List<Terminal> _terminals = new();
+    public readonly List<Terminal> _terminals = new();
 
-    private readonly List<Nonterminal> _nonterminals = new();
+    public readonly List<Nonterminal> _nonterminals = new();
 }

@@ -1,5 +1,4 @@
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace Lr1Parser;
 
@@ -12,47 +11,46 @@ public class TokenParser
         Grammar = grammar;
     }
     
-    public StringToken[] StringToTokens(string source)
+    public IEnumerable<StringToken> StringToTokens()
     {
-        var copyOfSource = new StringBuilder(RegularExpressions.Whitespace().Replace(source, " "));
+        var copyOfSource = new StringBuilder(RegularExpressions.Whitespace().Replace(Source, " "));
 
-        copyOfSource.Insert(0, ' ');// Для корректного распознавания ключевых слов, в начале входной последовательности должен быть символ-разделитель
+        // Для корректного распознавания ключевых слов, в начале и конце входной последовательности должен быть символ-разделитель
+        copyOfSource.Insert(0, ' ');
+        copyOfSource.Append(' ');
 	
         var tokens = new List<StringToken>(copyOfSource.Length);
 	
         for (var i = 0; i < tokens.Capacity; i++)
             tokens.Add(new StringToken());
 
-        foreach (var delimitedKeyword in DelimitedKeywords)
-        {
-            int occurrenceIndex;
-            while ((occurrenceIndex = copyOfSource.ToString().IndexOf(delimitedKeyword, StringComparison.Ordinal)) > -1)
-            {
-                var keyword = delimitedKeyword.Remove(delimitedKeyword.Length - 1);
-                
-                var terminal = Terminal.GetTerminalByValue(keyword);
-                
-                if (terminal == null)
-                    throw new Exception(
-                        $"Ключевое слово \"{keyword}\" не является частью языка. Вообще-то этой ошибки не должно быть - обратитесь к разработчику.");
+        var keywords = Grammar.GetKeywords();
 
-                tokens[occurrenceIndex].Value = terminal;
+        foreach (var keyword in keywords)
+        {
+            var match = RegularExpressions.Keyword(keyword.Value, SpecialCharacters).Match(copyOfSource.ToString());
+            
+            while (match.Success)
+            {
+                tokens[match.Index].Value = keyword;
                 
-                tokens[occurrenceIndex].IndexInSource = occurrenceIndex;
-                copyOfSource.Replace(keyword, new string(' ', keyword.Length), occurrenceIndex, keyword.Length);
+                tokens[match.Index].IndexInSource = match.Index;
+                copyOfSource.Replace(keyword.Value, new string(' ', keyword.Value.Length), match.Index + 1, keyword.Value.Length);
             }
         }
+        
+        Console.WriteLine(copyOfSource.ToString());
 	
         for (var i = 0; i < copyOfSource.Length; i++)
         {
             if (copyOfSource[i] == ' ')
                 continue;
 
-            var terminal = Terminal.GetTerminalByValue(copyOfSource[i].ToString());
+            var terminal = Grammar.GetTerminalByValue(copyOfSource[i].ToString());
 
             if (terminal == null)
             {
-                var position = source.GetPosition(i);
+                var position = Source.GetPosition(i);
                 throw new Exception(
                     $"Токен '{copyOfSource[i]}' не принадлежит алфавиту языка. Номер строки: {position.LineNumber}, номер токена: {position.CharNumber}.");
             }
@@ -61,7 +59,7 @@ public class TokenParser
             tokens[i].IndexInSource = i;
         }
 	
-        return tokens.Where(t => !t.Value.IsEmpty()).ToArray();
+        return tokens.Where(t => !t.Value.IsEmpty());
     }
     
     public string Source { get; set; }
@@ -69,17 +67,4 @@ public class TokenParser
     public string SpecialCharacters { get; set; }
     
     public Lr1Grammar Grammar { get; set; }
-
-    private static readonly IEnumerable<string> DelimitedKeywords = new[]
-    {
-        "public ", "internal ", "private ",
-        
-        "struct ",
-        
-        "int ", "int[", "int?",
-        "double ", "double[", "double?",
-        "bool ", "bool[", "bool?",
-        "char ", "char[", "char?",
-        "string ", "string[", "string?"
-    };
 }

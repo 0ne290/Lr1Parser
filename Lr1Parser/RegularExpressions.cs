@@ -4,19 +4,19 @@ namespace Lr1Parser;
 
 public static partial class RegularExpressions
 {
-    [GeneratedRegex(@"[\s]")]
+    [GeneratedRegex(@"\s")]
     public static partial Regex Whitespace();
     
-    [GeneratedRegex(@"[\s+]")]
+    [GeneratedRegex(@"\s+")]
     public static partial Regex WhitespaceSequence();
     
-    [GeneratedRegex("[^.-.$]")]
+    [GeneratedRegex("^.-.$")]
     public static partial Regex CharRange();
     
-    [GeneratedRegex(@"[^.\\+-.$]")]
+    [GeneratedRegex(@"^.\\+-.$")]
     public static partial Regex EscapedCharRange();
     
-    [GeneratedRegex(@"[^\\+\|$]")]
+    [GeneratedRegex(@"^\\+\|$")]
     public static partial Regex EscapedDisjunction();
     
     public static Regex Keyword(string keyword, string specialCharacters)

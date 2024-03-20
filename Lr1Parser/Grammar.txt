@@ -1,0 +1,6 @@
+GLOBALMODIFIER = public | internal
+MODIFIER = GLOBALMODIFIER | private
+TYPE = int | double | bool | char | string | struct
+NAME = BEGINNAME NUM BEGINNAME | BEGINNAME NUM
+BEGINNAME = _ | a-z | A-Z | BEGINNAME BEGINNAME
+NUM = 0-9 | 0-9 NUM
