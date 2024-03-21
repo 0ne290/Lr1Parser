@@ -56,6 +56,86 @@ public class GrammarParser
         {
             var subrulesRightSides = rules[i, 1].Split(" | ");
 
+            foreach (var subruleRightSide in subrulesRightSides)
+            {
+                var subruleRightSideTokenOptions = new List<List<IGrammarToken>>();
+
+                var subruleRightSideTokens = subruleRightSide.Split(' ');
+
+                foreach (var subruleRightSideToken in subruleRightSideTokens)
+                {
+                    if (subruleRightSideToken == "|")
+                        continue;
+
+                    IGrammarToken grammarToken = _grammar.GetTerminalByValue(subruleRightSideToken);
+                    if (!grammarToken.IsEmpty())
+                    {
+                        subruleRightSideTokenOptions.Add(grammarToken);
+                        continue;
+                    }
+
+                    grammarToken = _grammar.GetNonterminalByValue(rightSideToken);
+                    if (!grammarToken.IsEmpty())
+                    {
+                        deserializedSubruleRightSide.Add(grammarToken);
+                        continue;
+                    }
+
+                    if (RegularExpressions.CharRange().IsMatch(rightSideToken))
+                    {
+                        var characters = ParseRangeOfChars(rightSideToken[0], rightSideToken[2]);
+
+                        foreach (var character in characters)
+                        {
+                            grammarToken = _grammar.GetTerminalByValue(character.ToString());
+
+
+                            if (grammarToken.IsEmpty())
+                                throw new Exception(
+                                    $"Во время анализа правил встретился неизвестный терминал '{character}' при попытке распарсить диапазон символов на терминалы. Вообще-то этой ошибки не должно быть - обратитесь к разработчику.");
+
+                            deserializedSubruleRightSide.Add(grammarToken);
+                        }
+
+                        continue;
+                    }
+
+                    if (RegularExpressions.EscapedCharRange().IsMatch(rightSideToken))
+                    {
+                        grammarToken = _grammar.GetTerminalByValue(rightSideToken.Replace(@"\-", "-"));
+
+                        if (grammarToken.IsEmpty())
+                            throw new Exception(
+                                $"Во время анализа правил встретился неизвестный терминал \"{rightSideToken}\" при попытке распарсить токен с экранированным диапазоном символов. Вообще-то этой ошибки не должно быть - обратитесь к разработчику.");
+
+                        deserializedSubruleRightSide.Add(grammarToken);
+
+                        continue;
+                    }
+
+                    if (RegularExpressions.EscapedDisjunction().IsMatch(rightSideToken))
+                    {
+                        grammarToken = _grammar.GetTerminalByValue(rightSideToken.Replace(@"\|", "|"));
+
+                        if (grammarToken.IsEmpty())
+                            throw new Exception(
+                                $"Во время анализа правил встретился неизвестный терминал \"{rightSideToken}\" при попытке распарсить токен с экранированной дизъюнкцией правил. Вообще-то этой ошибки не должно быть - обратитесь к разработчику.");
+
+                        deserializedSubruleRightSide.Add(grammarToken);
+
+                        continue;
+                    }
+
+                    throw new Exception(
+                        $"Во время анализа правил встретился неизвестный токен \"{rightSideToken}\". Вообще-то этой ошибки не должно быть - обратитесь к разработчику.");
+                }
+            }
+        }
+
+        /*for (var i = 0; i < rules.GetLength(0); i++)
+        {
+            var subrulesRightSides = rules[i, 1].Split(" | ");
+
             foreach (var serializedSubruleRightSide in subrulesRightSides)
             {
                 var rightSideTokens = serializedSubruleRightSide.Split(' ');
@@ -66,7 +146,7 @@ public class GrammarParser
                 {
                     if (rightSideToken == "|")
                         continue;
-                    
+
                     IGrammarToken grammarToken = _grammar.GetTerminalByValue(rightSideToken);
                     if (!grammarToken.IsEmpty())
                     {
@@ -130,13 +210,13 @@ public class GrammarParser
                 }
 
                 var deserializedSubruleLeftSide = _grammar.GetNonterminalByValue(rules[i, 0]);
-                
+
                 if (deserializedSubruleLeftSide.IsEmpty())
                     throw new Exception($"Во время анализа правил встретился неизвестный нетерминал \"{rules[i, 0]}\". Вообще-то этой ошибки не должно быть - обратитесь к разработчику.");
 
                 _grammar.AddRule(new Rule(deserializedSubruleLeftSide, deserializedSubruleRightSide));
             }
-        }
+        }*/
     }
     
     private void ParseTerminals(string[,] rules)
