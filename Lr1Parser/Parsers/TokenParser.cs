@@ -1,10 +1,10 @@
 using System.Text;
 
-namespace Lr1Parser;
+namespace Lr1Parser.Parsers;
 
 public class TokenParser
 {
-    public TokenParser(string source, string specialCharacters, Lr1Grammar grammar)
+    public TokenParser(string source, string specialCharacters, Lr1Grammar.Lr1Grammar grammar)
     {
         Source = source;
         SpecialCharacters = specialCharacters;
@@ -42,8 +42,6 @@ public class TokenParser
                 match = regex.Match(copyOfSource.ToString());
             }
         }
-        
-        Console.WriteLine(copyOfSource.ToString());
 	
         for (var i = 0; i < copyOfSource.Length; i++)
         {
@@ -70,5 +68,5 @@ public class TokenParser
     
     public string SpecialCharacters { get; set; }
     
-    public Lr1Grammar Grammar { get; set; }
+    public Lr1Grammar.Lr1Grammar Grammar { get; set; }
 }

@@ -1,7 +1,53 @@
-namespace Lr1Parser;
+namespace Lr1Parser.Lr1Grammar;
 
 public class Lr1Grammar
 {
+    public void Log()
+    {
+        LogNonterminals();
+        LogTerminals();
+        LogRules();
+    }
+
+    private void LogRules()
+    {
+        var rulesFile = new StreamWriter("../../../Logging/Rules.txt", false);
+
+        foreach (var rule in _rules)
+        {
+            rulesFile.Write($"{rule.LeftSide.Value} = ");
+
+            foreach (var t in rule.RightSide)
+            {
+                rulesFile.Write($"{t.Value} ");
+            }
+
+            rulesFile.WriteLine();
+        }
+
+        rulesFile.Dispose();
+    }
+
+    private void LogTerminals()
+    {
+        var terminalsFile = new StreamWriter("../../../Logging/Terminals.txt", false);
+        
+        foreach (var terminal in _terminals)
+            terminalsFile.WriteLine(terminal.Value);
+        
+        terminalsFile.Dispose();
+    }
+    
+    private void LogNonterminals()
+    {
+        var nonterminalsFile = new StreamWriter("../../../Logging/Nonterminals.txt", false);
+        
+        foreach (var nonterminal in _nonterminals)
+            nonterminalsFile.WriteLine(nonterminal.Value);
+        
+        nonterminalsFile.Dispose();
+    }
+    
     public bool AddRule(Rule rule)
     {
         if (_rules.Contains(rule))

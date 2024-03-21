@@ -11,9 +11,10 @@ public static class Extensions
         
         for (var i = 0; i < index; i++)
         {
-            if (text[i] == '\n')
+            if (text[i..(i + Environment.NewLine.Length)] == Environment.NewLine)
             {
                 charCounter = 1;
+                i += Environment.NewLine.Length - 1;
                 lineCounter++;
             }
             else

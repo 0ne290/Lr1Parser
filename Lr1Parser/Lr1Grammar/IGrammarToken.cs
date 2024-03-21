@@ -1,4 +1,4 @@
-namespace Lr1Parser;
+namespace Lr1Parser.Lr1Grammar;
 
 public interface IGrammarToken
 {

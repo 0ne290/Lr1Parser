@@ -1,4 +1,6 @@
-namespace Lr1Parser;
+using Lr1Parser.Lr1Grammar;
+
+namespace Lr1Parser.Parsers;
 
 public class StringToken
 {

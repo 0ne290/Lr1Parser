@@ -1,4 +1,4 @@
-namespace Lr1Parser;
+namespace Lr1Parser.Parsers;
 
 public class Lr1Parser
 {
