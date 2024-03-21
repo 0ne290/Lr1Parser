@@ -6,7 +6,7 @@ public class Lr1Grammar
     {
         if (_rules.Contains(rule))
             return false;
-        if (_rules.Exists(r => r.LeftSide == rule.LeftSide && r.RightSide.SequenceEqual(rule.RightSide, new GrammarTokenComparer())))
+        if (_rules.Exists(r => r.LeftSide == rule.LeftSide && r.RightSide.SequenceEqual(rule.RightSide)))
             return false;
         
         _rules.Add(rule);
@@ -48,9 +48,9 @@ public class Lr1Grammar
     public Nonterminal GetNonterminalByValue(string value) =>
         _nonterminals.Find(n => n.Value == value) ?? Nonterminal.Empty;
 
-    public readonly List<Rule> _rules = new();
+    private readonly List<Rule> _rules = new();
 
-    public readonly List<Terminal> _terminals = new();
+    private readonly List<Terminal> _terminals = new();
 
-    public readonly List<Nonterminal> _nonterminals = new();
+    private readonly List<Nonterminal> _nonterminals = new();
 }

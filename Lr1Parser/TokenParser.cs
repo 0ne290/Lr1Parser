@@ -28,7 +28,9 @@ public class TokenParser
 
         foreach (var keyword in keywords)
         {
-            var match = RegularExpressions.Keyword(keyword.Value, SpecialCharacters).Match(copyOfSource.ToString());
+            var regex = RegularExpressions.Keyword(keyword.Value, SpecialCharacters);
+            
+            var match = regex.Match(copyOfSource.ToString());
             
             while (match.Success)
             {
@@ -36,6 +38,8 @@ public class TokenParser
                 
                 tokens[match.Index].IndexInSource = match.Index;
                 copyOfSource.Replace(keyword.Value, new string(' ', keyword.Value.Length), match.Index + 1, keyword.Value.Length);
+                
+                match = regex.Match(copyOfSource.ToString());
             }
         }
         
@@ -48,15 +52,15 @@ public class TokenParser
 
             var terminal = Grammar.GetTerminalByValue(copyOfSource[i].ToString());
 
-            if (terminal == null)
+            if (terminal.IsEmpty())
             {
                 var position = Source.GetPosition(i);
                 throw new Exception(
-                    $"Токен '{copyOfSource[i]}' не принадлежит алфавиту языка. Номер строки: {position.LineNumber}, номер токена: {position.CharNumber}.");
+                    $"Токен '{copyOfSource[i]}' не принадлежит алфавиту языка. Номер строки: {position.LineNumber}, номер токена: {position.CharNumber - 1}.");
             }
             
             tokens[i].Value = terminal;
-            tokens[i].IndexInSource = i;
+            tokens[i].IndexInSource = i - 1;
         }
 	
         return tokens.Where(t => !t.Value.IsEmpty());

@@ -21,7 +21,7 @@ public static partial class RegularExpressions
     
     public static Regex Keyword(string keyword, string specialCharacters)
     {
-        var escapedSpecialCharacters = Regex.Escape(specialCharacters);
+        var escapedSpecialCharacters = specialCharacters.Escape(true, true);
         return new Regex($@"[{escapedSpecialCharacters}\s]{keyword}[{escapedSpecialCharacters}\s]");
     }
 }

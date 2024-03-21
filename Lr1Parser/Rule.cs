@@ -5,10 +5,10 @@ public class Rule
     public Rule(Nonterminal leftSide, IEnumerable<IGrammarToken> rightSide)
     {
         LeftSide = leftSide;
-        RightSide = rightSide;
+        RightSide = rightSide.ToArray();
     }
     
     public readonly Nonterminal LeftSide;
     
-    public readonly IEnumerable<IGrammarToken> RightSide;
+    public readonly IReadOnlyList<IGrammarToken> RightSide;
 }
