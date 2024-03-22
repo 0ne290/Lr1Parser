@@ -13,7 +13,7 @@ public class Lr1Grammar
     {
         var rulesFile = new StreamWriter("../../../Logging/Rules.txt", false);
 
-        foreach (var rule in _rules)
+        foreach (var rule in Rules)
         {
             rulesFile.Write($"{rule.LeftSide.Value} = ");
 
@@ -32,7 +32,7 @@ public class Lr1Grammar
     {
         var terminalsFile = new StreamWriter("../../../Logging/Terminals.txt", false);
         
-        foreach (var terminal in _terminals)
+        foreach (var terminal in Terminals)
             terminalsFile.WriteLine(terminal.Value);
         
         terminalsFile.Dispose();
@@ -42,7 +42,7 @@ public class Lr1Grammar
     {
         var nonterminalsFile = new StreamWriter("../../../Logging/Nonterminals.txt", false);
         
-        foreach (var nonterminal in _nonterminals)
+        foreach (var nonterminal in Nonterminals)
             nonterminalsFile.WriteLine(nonterminal.Value);
         
         nonterminalsFile.Dispose();
@@ -50,53 +50,53 @@ public class Lr1Grammar
     
     public bool AddRule(Rule rule)
     {
-        if (_rules.Contains(rule))
+        if (Rules.Contains(rule))
             return false;
-        if (_rules.Exists(r => r.LeftSide == rule.LeftSide && r.RightSide.SequenceEqual(rule.RightSide)))
+        if (Rules.Exists(r => r.LeftSide == rule.LeftSide && r.RightSide.SequenceEqual(rule.RightSide)))
             return false;
         
-        _rules.Add(rule);
+        Rules.Add(rule);
         
         return true;
     }
 
-    public IEnumerable<Rule> GetRulesByLeftSides(Nonterminal leftSide) => _rules.Where(r => r.LeftSide == leftSide);
+    public IEnumerable<Rule> GetRulesByLeftSide(Nonterminal leftSide) => Rules.Where(r => r.LeftSide == leftSide);
     
     public bool AddTerminal(Terminal terminal)
     {
-        if (_terminals.Contains(terminal))
+        if (Terminals.Contains(terminal))
             return false;
-        if (_terminals.Exists(t => t.Value == terminal.Value))
+        if (Terminals.Exists(t => t.Value == terminal.Value))
             return false;
         
-        _terminals.Add(terminal);
+        Terminals.Add(terminal);
         
         return true;
     }
 
     public Terminal GetTerminalByValue(string value) =>
-        _terminals.Find(t => t.Value == value) ?? Terminal.Empty;
+        Terminals.Find(t => t.Value == value) ?? Terminal.Empty;
 
-    public IEnumerable<Terminal> GetKeywords() => _terminals.FindAll(t => t.Value.Length > 1);
+    public IEnumerable<Terminal> GetKeywords() => Terminals.FindAll(t => t.Value.Length > 1);
     
     public bool AddNonterminal(Nonterminal nonterminal)
     {
-        if (_nonterminals.Contains(nonterminal))
+        if (Nonterminals.Contains(nonterminal))
             return false;
-        if (_nonterminals.Exists(n => n.Value == nonterminal.Value))
+        if (Nonterminals.Exists(n => n.Value == nonterminal.Value))
             return false;
         
-        _nonterminals.Add(nonterminal);
+        Nonterminals.Add(nonterminal);
         
         return true;
     }
 
     public Nonterminal GetNonterminalByValue(string value) =>
-        _nonterminals.Find(n => n.Value == value) ?? Nonterminal.Empty;
+        Nonterminals.Find(n => n.Value == value) ?? Nonterminal.Empty;
 
-    private readonly List<Rule> _rules = new();
+    public List<Rule> Rules { get; } = new();
 
-    private readonly List<Terminal> _terminals = new();
+    public List<Terminal> Terminals { get; } = new();
 
-    private readonly List<Nonterminal> _nonterminals = new();
+    public List<Nonterminal> Nonterminals { get; } = new();
 }

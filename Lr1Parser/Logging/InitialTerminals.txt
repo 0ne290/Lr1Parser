@@ -1,0 +1,7 @@
+2535 = { 2535 }
+sregf = { sregf }
+13ifhdtr = { 13ifhdtr }
+dgfg = { dgfg }
+KEK = { 2535 sregf }
+LEC = { sregf 13ifhdtr }
+RULE = { sregf 13ifhdtr dgfg }

@@ -1,5 +1,7 @@
 ﻿using Lr1Parser.Parsers;
 
+// ReSharper disable PossibleMultipleEnumeration
+
 namespace Lr1Parser;
 
 internal static class Program
@@ -23,6 +25,10 @@ internal static class Program
                 tokenFile.WriteLine($"{token.Value.Value} {token.IndexInSource}");
         
             tokenFile.Dispose();
+            
+            var lr1Parser = new Lr1Parser.Parsers.Lr1Parser(grammar, tokens);
+            
+            lr1Parser.Log();
 
             Console.Write("Нажмите любую клавишу для завершения программы...");
             Console.ReadKey();
