@@ -23,7 +23,7 @@ public class GrammarParser
 
     private string[,] PrepareLines()
     {
-        var lines = Source.Split(Environment.NewLine).ToList();
+        var lines = Source.Replace("\0", string.Empty).Split(Environment.NewLine).ToList();
         lines.RemoveAll(string.IsNullOrWhiteSpace);
         
         if (lines.Count == 0)
@@ -54,6 +54,11 @@ public class GrammarParser
 
     private void ParseRules(string[,] rules)
     {
+        var initialRule = new Rule(_grammar.InitialNonterminal, new[] { _grammar.Nonterminals[1] });
+        
+        _grammar.AddRule(initialRule);
+        _grammar.InitialRule = initialRule;
+        
         for (var i = 0; i < rules.GetLength(0); i++)
         {
             var subrulesRightSides = rules[i, 1].Split(" | ");
@@ -144,13 +149,14 @@ public class GrammarParser
 
                 foreach (var product in products)
                     _grammar.AddRule(new Rule(subruleLeftSide, product));
-                
             }
         }
     }
     
     private void ParseTerminals(string[,] rules)
     {
+        _grammar.AddTerminal(Terminal.End);
+        
         for (var i = 0; i < rules.GetLength(0); i++)
         {
             var rightSideTokens = rules[i, 1].Split(' ');
@@ -206,8 +212,18 @@ public class GrammarParser
 
     private void ParseNonterminals(string[,] rules)
     {
+        var initialNonterminal = new Nonterminal("InitialNonterminal");
+        
+        _grammar.AddNonterminal(initialNonterminal);
+        _grammar.InitialNonterminal = initialNonterminal;
+        
         for (var i = 0; i < rules.GetLength(0); i++)
+        {
+            if (rules[i, 0] == "InitialNonterminal")
+                throw new Exception("В грамматике не должно содержаться нетерминала с именем \"InitialNonterminal\" - это имя зарезервировано системой для создания искусственных начальных нетерминала и правила.");
+            
             _grammar.AddNonterminal(new Nonterminal(rules[i, 0]));
+        }
     }
     
     public string Source { get; set; }

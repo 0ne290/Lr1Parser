@@ -9,4 +9,6 @@ public class Terminal : IGrammarToken
     public string Value { get; set; }
 
     public static Terminal Empty { get; } = new(string.Empty);
+
+    public static Terminal End { get; } = new("\0");
 }

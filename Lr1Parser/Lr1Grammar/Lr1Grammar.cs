@@ -99,4 +99,10 @@ public class Lr1Grammar
     public List<Terminal> Terminals { get; } = new();
 
     public List<Nonterminal> Nonterminals { get; } = new();
+    
+    #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+    public Rule InitialRule { get; set; }
+    
+    public Nonterminal InitialNonterminal { get; set; }
+    #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 }

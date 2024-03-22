@@ -26,7 +26,7 @@ internal static class Program
         
             tokenFile.Dispose();
             
-            var lr1Parser = new Lr1Parser.Parsers.Lr1Parser(grammar, tokens);
+            var lr1Parser = new Parsers.Lr1Parser.Lr1Parser(grammar, tokens);
             
             lr1Parser.Log();
 
