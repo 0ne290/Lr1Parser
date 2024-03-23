@@ -1,10 +1,20 @@
 using Lr1Parser.Lr1Grammar;
 
-namespace Lr1Parser.Parsers.Lr1Parser;
+namespace Lr1Parser.Lr1Graph;
 
-public class Lr1Item
+public class StateItem
 {
-    public Lr1Item(Rule rule, int recognizedPartIndex, Terminal reductionTerminal)
+    public StateItem(StateItem item, int recognizedPartIndexIncrement = 1)// Создаем новую Lr1-ситуацию, идентичную заданной, но с увеличенным индексом распознанной части
+    {
+        Rule = item.Rule;
+        RecognizedPartIndex = item.RecognizedPartIndex + recognizedPartIndexIncrement;
+        ReductionTerminal = item.ReductionTerminal;
+
+        RecognizedPart = Rule.RightSide.Take(RecognizedPartIndex).ToArray();
+        UnrecognizedPart = Rule.RightSide.Skip(RecognizedPartIndex).ToArray();
+    }
+    
+    public StateItem(Rule rule, int recognizedPartIndex, Terminal reductionTerminal)
     {
         Rule = rule;
         RecognizedPartIndex = recognizedPartIndex;
@@ -14,10 +24,13 @@ public class Lr1Item
         UnrecognizedPart = Rule.RightSide.Skip(RecognizedPartIndex).ToArray();
     }
 
-    public bool Equals(Lr1Item item) => item.Rule == Rule && item.RecognizedPartIndex == RecognizedPartIndex &&
+    public bool Equals(StateItem item) => item.Rule == Rule && item.RecognizedPartIndex == RecognizedPartIndex &&
                                         item.ReductionTerminal == ReductionTerminal;
 
-    public bool FirstUnrecognizedTokenIsNonterminal() => UnrecognizedPart[0] is Nonterminal;
+    public bool FirstUnrecognizedTokenEquals(IGrammarToken token) =>
+        UnrecognizedPart.Count > 0 && UnrecognizedPart[0] == token;
+
+    public bool FirstUnrecognizedTokenIsNonterminal() => UnrecognizedPart.Count > 0 && UnrecognizedPart[0] is Nonterminal;
 
     public IGrammarToken GetSecondUnrecognizedTokenOrReductionTerminal() =>
         UnrecognizedPart.Count > 0 ? UnrecognizedPart[0] : ReductionTerminal;

@@ -4,5 +4,5 @@ public interface IGrammarToken
 {
     bool IsEmpty();
     
-    string Value { get; set; }
+    string Value { get; }
 }

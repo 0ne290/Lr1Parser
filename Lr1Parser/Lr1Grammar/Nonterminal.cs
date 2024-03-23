@@ -6,7 +6,7 @@ public class Nonterminal : IGrammarToken
     
     public bool IsEmpty() => this == Empty;
     
-    public string Value { get; set; }
+    public string Value { get; }
 
     public static Nonterminal Empty { get; } = new(string.Empty);
 }

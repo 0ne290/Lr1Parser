@@ -1,12 +1,13 @@
 using Lr1Parser.Lr1Grammar;
+using Lr1Parser.Lr1Graph;
 
-namespace Lr1Parser.Parsers.Lr1Parser;
+namespace Lr1Parser.Parsers;
 
 public class Lr1Parser
 {
-    public Lr1Parser(Lr1Grammar.Lr1Grammar grammar, IEnumerable<StringToken> tokens)
+    public Lr1Parser(Lr1Grammar.Lr1GrammarBuilder grammarBuilder, IEnumerable<StringToken> tokens)
     {
-        _grammar = grammar;
+        _grammarBuilder = grammarBuilder;
         _tokens = tokens;
         
         CalculateInitialTerminals();
@@ -14,17 +15,17 @@ public class Lr1Parser
 
     private void CalculateInitialTerminals()
     {
-        foreach (var terminal in _grammar.Terminals)
+        foreach (var terminal in _grammarBuilder.Terminals)
             _initialTerminalsByTokens.Add(terminal, new[] { terminal });
         
-        foreach (var nonterminal in _grammar.Nonterminals)
+        foreach (var nonterminal in _grammarBuilder.Nonterminals)
             if (!_initialTerminalsByTokens.ContainsKey(nonterminal))
                 CalculateInitialTerminalsForNonterminal(nonterminal);
     }
 
     private void CalculateInitialTerminalsForNonterminal(Nonterminal nonterminal)
     {
-        var rules = _grammar.GetRulesByLeftSide(nonterminal);
+        var rules = _grammarBuilder.GetRulesByLeftSide(nonterminal);
 
         var initialTerminalsForNonterminal = new List<Terminal>();
         foreach (var rule in rules)
@@ -51,13 +52,39 @@ public class Lr1Parser
 
     private void BuildStateGraph()
     {
-        var initialState = new Lr1ParserState();
-        initialState.AddItem(new Lr1Item(_grammar.InitialRule, 0, Terminal.End));
+        var initialState = new State();
+        initialState.AddItem(new StateItem(_grammarBuilder.InitialRule, 0, Terminal.End));
+        CloseState(initialState);
+
+        var transitionStates = new Queue<State>();
         
         _states.Add(initialState);
+        transitionStates.Enqueue(initialState);
+
+        while (transitionStates.TryDequeue(out var transitionState))
+        {
+            foreach (var grammarToken in _grammarBuilder.Tokens)
+            {
+                Transition(transitionState, grammarToken);
+            }
+        }
     }
 
-    private void CloseState(Lr1ParserState state)
+    private State Transition(State sourceState, IGrammarToken token)
+    {
+        var destinationState = new State();
+        
+        foreach (var item in sourceState.GetItemsByFirstUnrecognizedToken(token))
+        {
+            destinationState.AddItem(new StateItem(item));
+        }
+        
+        CloseState(destinationState);
+
+        return destinationState;
+    }
+
+    private void CloseState(State state)
     {
         while (true)
         {
@@ -68,9 +95,9 @@ public class Lr1Parser
                 var nonterminal = item.UnrecognizedPart[0];
                 foreach (var initialTerminal in _initialTerminalsByTokens[item.GetSecondUnrecognizedTokenOrReductionTerminal()])
                 {
-                    foreach (var rule in _grammar.GetRulesByLeftSide((Nonterminal)nonterminal))
+                    foreach (var rule in _grammarBuilder.GetRulesByLeftSide((Nonterminal)nonterminal))
                     {
-                        if (state.AddItem(new Lr1Item(rule, 0, initialTerminal)))
+                        if (state.AddItem(new StateItem(rule, 0, initialTerminal)))
                             numberAddedItems++;
                     }
                 }
@@ -79,7 +106,6 @@ public class Lr1Parser
             if (numberAddedItems < 1)
                 break;
         }
-        
     }
 
     public void Log()
@@ -104,11 +130,11 @@ public class Lr1Parser
         initialTerminalsFile.Dispose();
     }
 
-    private readonly Lr1Grammar.Lr1Grammar _grammar;
+    private readonly Lr1Grammar.Lr1GrammarBuilder _grammarBuilder;
 
     private readonly IEnumerable<StringToken> _tokens;
 
     private readonly Dictionary<IGrammarToken, IEnumerable<Terminal>> _initialTerminalsByTokens = new();
 
-    private readonly List<Lr1ParserState> _states = new();
+    private readonly List<State> _states = new();
 }

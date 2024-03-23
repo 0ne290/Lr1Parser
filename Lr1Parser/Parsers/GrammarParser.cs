@@ -8,9 +8,9 @@ public class GrammarParser
     public GrammarParser(string source) => Source = source;
     #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     
-    public Lr1Grammar.Lr1Grammar Parse()
+    public Lr1Grammar.Lr1GrammarBuilder Parse()
     {
-        _grammar = new Lr1Grammar.Lr1Grammar();
+        _grammarBuilder = new Lr1Grammar.Lr1GrammarBuilder();
 
         var rules = PrepareLines();
         
@@ -18,7 +18,7 @@ public class GrammarParser
         ParseTerminals(rules);
         ParseRules(rules);
 
-        return _grammar;
+        return _grammarBuilder;
     }
 
     private string[,] PrepareLines()
@@ -54,10 +54,10 @@ public class GrammarParser
 
     private void ParseRules(string[,] rules)
     {
-        var initialRule = new Rule(_grammar.InitialNonterminal, new[] { _grammar.Nonterminals[1] });
+        var initialRule = new Rule(_grammarBuilder.InitialNonterminal, new[] { _grammarBuilder.Nonterminals[1] });
         
-        _grammar.AddRule(initialRule);
-        _grammar.InitialRule = initialRule;
+        _grammarBuilder.AddRule(initialRule);
+        _grammarBuilder.InitialRule = initialRule;
         
         for (var i = 0; i < rules.GetLength(0); i++)
         {
@@ -74,14 +74,14 @@ public class GrammarParser
                     if (subruleRightSideToken == "|")
                         continue;
 
-                    IGrammarToken grammarToken = _grammar.GetTerminalByValue(subruleRightSideToken);
+                    IGrammarToken grammarToken = _grammarBuilder.GetTerminalByValue(subruleRightSideToken);
                     if (!grammarToken.IsEmpty())
                     {
                         subruleRightSideTokenOptions.Add(new[] { grammarToken });
                         continue;
                     }
 
-                    grammarToken = _grammar.GetNonterminalByValue(subruleRightSideToken);
+                    grammarToken = _grammarBuilder.GetNonterminalByValue(subruleRightSideToken);
                     if (!grammarToken.IsEmpty())
                     {
                         subruleRightSideTokenOptions.Add(new[] { grammarToken });
@@ -96,7 +96,7 @@ public class GrammarParser
 
                         foreach (var character in characters)
                         {
-                            grammarToken = _grammar.GetTerminalByValue(character.ToString());
+                            grammarToken = _grammarBuilder.GetTerminalByValue(character.ToString());
 
                             if (grammarToken.IsEmpty())
                                 throw new Exception(
@@ -112,7 +112,7 @@ public class GrammarParser
 
                     if (RegularExpressions.EscapedCharRange().IsMatch(subruleRightSideToken))
                     {
-                        grammarToken = _grammar.GetTerminalByValue(subruleRightSideToken.Replace(@"\-", "-"));
+                        grammarToken = _grammarBuilder.GetTerminalByValue(subruleRightSideToken.Replace(@"\-", "-"));
 
                         if (grammarToken.IsEmpty())
                             throw new Exception(
@@ -125,7 +125,7 @@ public class GrammarParser
 
                     if (RegularExpressions.EscapedDisjunction().IsMatch(subruleRightSideToken))
                     {
-                        grammarToken = _grammar.GetTerminalByValue(subruleRightSideToken.Replace(@"\|", "|"));
+                        grammarToken = _grammarBuilder.GetTerminalByValue(subruleRightSideToken.Replace(@"\|", "|"));
 
                         if (grammarToken.IsEmpty())
                             throw new Exception(
@@ -140,7 +140,7 @@ public class GrammarParser
                         $"Во время анализа правил встретился неизвестный токен \"{subruleRightSideToken}\". Вообще-то этой ошибки не должно быть - обратитесь к разработчику.");
                 }
                 
-                var subruleLeftSide = _grammar.GetNonterminalByValue(rules[i, 0]);
+                var subruleLeftSide = _grammarBuilder.GetNonterminalByValue(rules[i, 0]);
 
                 if (subruleLeftSide.IsEmpty())
                     throw new Exception($"Во время анализа правил встретился неизвестный нетерминал \"{rules[i, 0]}\". Вообще-то этой ошибки не должно быть - обратитесь к разработчику.");
@@ -148,14 +148,14 @@ public class GrammarParser
                 var products = subruleRightSideTokenOptions.CartesianProduct();
 
                 foreach (var product in products)
-                    _grammar.AddRule(new Rule(subruleLeftSide, product));
+                    _grammarBuilder.AddRule(new Rule(subruleLeftSide, product));
             }
         }
     }
     
     private void ParseTerminals(string[,] rules)
     {
-        _grammar.AddTerminal(Terminal.End);
+        _grammarBuilder.AddTerminal(Terminal.End);
         
         for (var i = 0; i < rules.GetLength(0); i++)
         {
@@ -163,7 +163,7 @@ public class GrammarParser
 
             foreach (var token in rightSideTokens)
             {
-                if (!_grammar.GetNonterminalByValue(token).IsEmpty())
+                if (!_grammarBuilder.GetNonterminalByValue(token).IsEmpty())
                     continue;
                 
                 if (token == "|")
@@ -174,24 +174,24 @@ public class GrammarParser
                     var characters = ParseRangeOfChars(token[0], token[2]);
 
                     foreach (var character in characters)
-                        _grammar.AddTerminal(new Terminal(character.ToString()));
+                        _grammarBuilder.AddTerminal(new Terminal(character.ToString()));
                     
                     continue;
                 }
                 
                 if (RegularExpressions.EscapedCharRange().IsMatch(token))
                 {
-                    _grammar.AddTerminal(new Terminal(token.Replace(@"\-", "-")));
+                    _grammarBuilder.AddTerminal(new Terminal(token.Replace(@"\-", "-")));
                     continue;
                 }
                 
                 if (RegularExpressions.EscapedDisjunction().IsMatch(token))
                 {
-                    _grammar.AddTerminal(new Terminal(token.Replace(@"\|", "|")));
+                    _grammarBuilder.AddTerminal(new Terminal(token.Replace(@"\|", "|")));
                     continue;
                 }
                 
-                _grammar.AddTerminal(new Terminal(token));
+                _grammarBuilder.AddTerminal(new Terminal(token));
             }
         }
     }
@@ -214,19 +214,19 @@ public class GrammarParser
     {
         var initialNonterminal = new Nonterminal("InitialNonterminal");
         
-        _grammar.AddNonterminal(initialNonterminal);
-        _grammar.InitialNonterminal = initialNonterminal;
+        _grammarBuilder.AddNonterminal(initialNonterminal);
+        _grammarBuilder.InitialNonterminal = initialNonterminal;
         
         for (var i = 0; i < rules.GetLength(0); i++)
         {
             if (rules[i, 0] == "InitialNonterminal")
                 throw new Exception("В грамматике не должно содержаться нетерминала с именем \"InitialNonterminal\" - это имя зарезервировано системой для создания искусственных начальных нетерминала и правила.");
             
-            _grammar.AddNonterminal(new Nonterminal(rules[i, 0]));
+            _grammarBuilder.AddNonterminal(new Nonterminal(rules[i, 0]));
         }
     }
     
     public string Source { get; set; }
 
-    private Lr1Grammar.Lr1Grammar _grammar;
+    private Lr1Grammar.Lr1GrammarBuilder _grammarBuilder;
 }

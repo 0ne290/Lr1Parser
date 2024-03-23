@@ -4,11 +4,11 @@ namespace Lr1Parser.Parsers;
 
 public class TokenParser
 {
-    public TokenParser(string source, string specialCharacters, Lr1Grammar.Lr1Grammar grammar)
+    public TokenParser(string source, string specialCharacters, Lr1Grammar.Lr1GrammarBuilder grammarBuilder)
     {
         Source = source;
         SpecialCharacters = specialCharacters;
-        Grammar = grammar;
+        GrammarBuilder = grammarBuilder;
     }
     
     public IEnumerable<StringToken> StringToTokens()
@@ -24,7 +24,7 @@ public class TokenParser
         for (var i = 0; i < tokens.Capacity; i++)
             tokens.Add(new StringToken());
 
-        var keywords = Grammar.GetKeywords();
+        var keywords = GrammarBuilder.GetKeywords();
 
         foreach (var keyword in keywords)
         {
@@ -48,7 +48,7 @@ public class TokenParser
             if (copyOfSource[i] == ' ')
                 continue;
 
-            var terminal = Grammar.GetTerminalByValue(copyOfSource[i].ToString());
+            var terminal = GrammarBuilder.GetTerminalByValue(copyOfSource[i].ToString());
 
             if (terminal.IsEmpty())
             {
@@ -68,5 +68,5 @@ public class TokenParser
     
     public string SpecialCharacters { get; set; }
     
-    public Lr1Grammar.Lr1Grammar Grammar { get; set; }
+    public Lr1Grammar.Lr1GrammarBuilder GrammarBuilder { get; set; }
 }

@@ -8,7 +8,7 @@ public class Rule
         RightSide = rightSide.ToArray();
     }
     
-    public readonly Nonterminal LeftSide;
+    public Nonterminal LeftSide { get; }
     
-    public readonly IReadOnlyList<IGrammarToken> RightSide;
+    public IReadOnlyList<IGrammarToken> RightSide { get; }
 }

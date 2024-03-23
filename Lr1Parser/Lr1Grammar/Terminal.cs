@@ -6,7 +6,7 @@ public class Terminal : IGrammarToken
 
     public bool IsEmpty() => this == Empty;
     
-    public string Value { get; set; }
+    public string Value { get; }
 
     public static Terminal Empty { get; } = new(string.Empty);
 

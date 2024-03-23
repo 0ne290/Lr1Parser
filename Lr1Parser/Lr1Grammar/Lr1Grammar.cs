@@ -1,108 +1,55 @@
+using System.Text;
+
 namespace Lr1Parser.Lr1Grammar;
 
 public class Lr1Grammar
 {
-    public void Log()
+    public Lr1Grammar(IEnumerable<Rule> rules, IEnumerable<IGrammarToken> tokens, IEnumerable<Terminal> terminals,
+        IEnumerable<Nonterminal> nonterminals, Rule initialRule, Nonterminal initialNonterminal)
     {
-        LogNonterminals();
-        LogTerminals();
-        LogRules();
+        Rules = rules;
+        Tokens = tokens;
+        Terminals = terminals;
+        Nonterminals = nonterminals;
+        InitialRule = initialRule;
+        InitialNonterminal = initialNonterminal;
     }
 
-    private void LogRules()
+    public override string ToString()
     {
-        var rulesFile = new StreamWriter("../../../Logging/Rules.txt", false);
-
+        var res = new StringBuilder(512);
+        
+        res.Append($"Терминалы:{Environment.NewLine + Environment.NewLine}");
+        foreach (var terminal in Terminals)
+            res.Append(terminal.Value + Environment.NewLine);
+        
+        res.Append($"{Environment.NewLine}Нетерминалы:{Environment.NewLine + Environment.NewLine}");
+        foreach (var nonterminal in Nonterminals)
+            res.Append(nonterminal.Value + Environment.NewLine);
+        
+        res.Append($"{Environment.NewLine}Правила:{Environment.NewLine}");
         foreach (var rule in Rules)
         {
-            rulesFile.Write($"{rule.LeftSide.Value} = ");
+            res.Append($"{Environment.NewLine + rule.LeftSide.Value} =");
 
             foreach (var t in rule.RightSide)
-            {
-                rulesFile.Write($"{t.Value} ");
-            }
-
-            rulesFile.WriteLine();
+                res.Append($" {t.Value}");
         }
-
-        rulesFile.Dispose();
+        
+        return res.ToString();
     }
 
-    private void LogTerminals()
-    {
-        var terminalsFile = new StreamWriter("../../../Logging/Terminals.txt", false);
-        
-        foreach (var terminal in Terminals)
-            terminalsFile.WriteLine(terminal.Value);
-        
-        terminalsFile.Dispose();
-    }
-    
-    private void LogNonterminals()
-    {
-        var nonterminalsFile = new StreamWriter("../../../Logging/Nonterminals.txt", false);
-        
-        foreach (var nonterminal in Nonterminals)
-            nonterminalsFile.WriteLine(nonterminal.Value);
-        
-        nonterminalsFile.Dispose();
-    }
-    
-    public bool AddRule(Rule rule)
-    {
-        if (Rules.Contains(rule))
-            return false;
-        if (Rules.Exists(r => r.LeftSide == rule.LeftSide && r.RightSide.SequenceEqual(rule.RightSide)))
-            return false;
-        
-        Rules.Add(rule);
-        
-        return true;
-    }
+    public IEnumerable<Rule> Rules { get; }
 
-    public IEnumerable<Rule> GetRulesByLeftSide(Nonterminal leftSide) => Rules.Where(r => r.LeftSide == leftSide);
-    
-    public bool AddTerminal(Terminal terminal)
-    {
-        if (Terminals.Contains(terminal))
-            return false;
-        if (Terminals.Exists(t => t.Value == terminal.Value))
-            return false;
-        
-        Terminals.Add(terminal);
-        
-        return true;
-    }
+    public IEnumerable<IGrammarToken> Tokens { get; }
 
-    public Terminal GetTerminalByValue(string value) =>
-        Terminals.Find(t => t.Value == value) ?? Terminal.Empty;
+    public IEnumerable<Terminal> Terminals { get; }
 
-    public IEnumerable<Terminal> GetKeywords() => Terminals.FindAll(t => t.Value.Length > 1);
-    
-    public bool AddNonterminal(Nonterminal nonterminal)
-    {
-        if (Nonterminals.Contains(nonterminal))
-            return false;
-        if (Nonterminals.Exists(n => n.Value == nonterminal.Value))
-            return false;
-        
-        Nonterminals.Add(nonterminal);
-        
-        return true;
-    }
+    public IEnumerable<Nonterminal> Nonterminals { get; }
 
-    public Nonterminal GetNonterminalByValue(string value) =>
-        Nonterminals.Find(n => n.Value == value) ?? Nonterminal.Empty;
+    public Rule InitialRule { get; }
 
-    public List<Rule> Rules { get; } = new();
+    public Nonterminal InitialNonterminal { get; }
 
-    public List<Terminal> Terminals { get; } = new();
-
-    public List<Nonterminal> Nonterminals { get; } = new();
-    
-    #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-    public Rule InitialRule { get; set; }
-    
-    public Nonterminal InitialNonterminal { get; set; }
-    #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+    public static string LogPath { get; set; } = "../../../Logging/Grammar.txt";
 }
