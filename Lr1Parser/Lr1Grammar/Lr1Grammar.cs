@@ -15,28 +15,50 @@ public class Lr1Grammar
         InitialNonterminal = initialNonterminal;
     }
 
-    public override string ToString()
+    public void Log()
     {
-        var res = new StringBuilder(512);
-        
-        res.Append($"Терминалы:{Environment.NewLine + Environment.NewLine}");
-        foreach (var terminal in Terminals)
-            res.Append(terminal.Value + Environment.NewLine);
-        
-        res.Append($"{Environment.NewLine}Нетерминалы:{Environment.NewLine + Environment.NewLine}");
-        foreach (var nonterminal in Nonterminals)
-            res.Append(nonterminal.Value + Environment.NewLine);
-        
-        res.Append($"{Environment.NewLine}Правила:{Environment.NewLine}");
+        LogNonterminals();
+        LogTerminals();
+        LogRules();
+    }
+
+    private void LogRules()
+    {
+        var rulesFile = new StreamWriter("../../../Logging/Rules.txt", false);
+
         foreach (var rule in Rules)
         {
-            res.Append($"{Environment.NewLine + rule.LeftSide.Value} =");
+            rulesFile.Write($"{rule.LeftSide.Value} =");
 
             foreach (var t in rule.RightSide)
-                res.Append($" {t.Value}");
+            {
+                rulesFile.Write($" {t.Value}");
+            }
+
+            rulesFile.WriteLine();
         }
+
+        rulesFile.Dispose();
+    }
+
+    private void LogTerminals()
+    {
+        var terminalsFile = new StreamWriter("../../../Logging/Terminals.txt", false);
         
-        return res.ToString();
+        foreach (var terminal in Terminals)
+            terminalsFile.WriteLine(terminal.Value);
+        
+        terminalsFile.Dispose();
+    }
+    
+    private void LogNonterminals()
+    {
+        var nonterminalsFile = new StreamWriter("../../../Logging/Nonterminals.txt", false);
+        
+        foreach (var nonterminal in Nonterminals)
+            nonterminalsFile.WriteLine(nonterminal.Value);
+        
+        nonterminalsFile.Dispose();
     }
 
     public IEnumerable<Rule> Rules { get; }
@@ -50,6 +72,4 @@ public class Lr1Grammar
     public Rule InitialRule { get; }
 
     public Nonterminal InitialNonterminal { get; }
-
-    public static string LogPath { get; set; } = "../../../Logging/Grammar.txt";
 }
