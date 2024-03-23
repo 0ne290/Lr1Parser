@@ -9,4 +9,6 @@ public class Nonterminal : IGrammarToken
     public string Value { get; }
 
     public static Nonterminal Empty { get; } = new(string.Empty);
+
+    public static Nonterminal Initial { get; } = new("InitialNonterminal");
 }
