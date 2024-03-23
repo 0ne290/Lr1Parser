@@ -54,11 +54,6 @@ public class GrammarParser
 
     private void ParseRules(string[,] rules)
     {
-        var initialRule = new Rule(_grammarBuilder.InitialNonterminal, new[] { _grammarBuilder.Nonterminals[1] });
-        
-        _grammarBuilder.AddRule(initialRule);
-        _grammarBuilder.InitialRule = initialRule;
-        
         for (var i = 0; i < rules.GetLength(0); i++)
         {
             var subrulesRightSides = rules[i, 1].Split(" | ");
@@ -155,8 +150,6 @@ public class GrammarParser
     
     private void ParseTerminals(string[,] rules)
     {
-        _grammarBuilder.AddTerminal(Terminal.End);
-        
         for (var i = 0; i < rules.GetLength(0); i++)
         {
             var rightSideTokens = rules[i, 1].Split(' ');
@@ -212,18 +205,8 @@ public class GrammarParser
 
     private void ParseNonterminals(string[,] rules)
     {
-        var initialNonterminal = new Nonterminal("InitialNonterminal");
-        
-        _grammarBuilder.AddNonterminal(initialNonterminal);
-        _grammarBuilder.InitialNonterminal = initialNonterminal;
-        
         for (var i = 0; i < rules.GetLength(0); i++)
-        {
-            if (rules[i, 0] == "InitialNonterminal")
-                throw new Exception("В грамматике не должно содержаться нетерминала с именем \"InitialNonterminal\" - это имя зарезервировано системой для создания искусственных начальных нетерминала и правила.");
-            
             _grammarBuilder.AddNonterminal(new Nonterminal(rules[i, 0]));
-        }
     }
     
     public string Source { get; set; }
