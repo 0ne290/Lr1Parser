@@ -10,5 +10,5 @@ public class Terminal : IGrammarToken
 
     public static Terminal Empty { get; } = new(string.Empty);
 
-    public static Terminal End { get; } = new("\0");
+    public static Terminal Final { get; } = new("\0");
 }
