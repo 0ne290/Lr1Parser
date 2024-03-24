@@ -8,22 +8,22 @@ public class GrammarParser
     public GrammarParser(string source) => Source = source;
     #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     
-    public Lr1Grammar.Lr1GrammarBuilder Parse()
+    public Lr1Grammar.Lr1Grammar Parse()
     {
-        _grammarBuilder = new Lr1Grammar.Lr1GrammarBuilder();
-
         var rules = PrepareLines();
+        
+        _grammarBuilder = new Lr1GrammarBuilder(new Nonterminal(rules[0, 0]));
         
         ParseNonterminals(rules);
         ParseTerminals(rules);
         ParseRules(rules);
 
-        return _grammarBuilder;
+        return _grammarBuilder.Build();
     }
 
     private string[,] PrepareLines()
     {
-        var lines = Source.Replace("\0", string.Empty).Split(Environment.NewLine).ToList();
+        var lines = Source.Split(Environment.NewLine).ToList();
         lines.RemoveAll(string.IsNullOrWhiteSpace);
         
         if (lines.Count == 0)
@@ -85,7 +85,7 @@ public class GrammarParser
 
                     if (RegularExpressions.CharRange().IsMatch(subruleRightSideToken))
                     {
-                        var characters = ParseRangeOfChars(subruleRightSideToken[0], subruleRightSideToken[2]);
+                        var characters = subruleRightSideToken[0].RangeTo(subruleRightSideToken[2]);
                         
                         var charactersTerminals = new List<IGrammarToken>();
 
@@ -164,7 +164,7 @@ public class GrammarParser
 
                 if (RegularExpressions.CharRange().IsMatch(token))
                 {
-                    var characters = ParseRangeOfChars(token[0], token[2]);
+                    var characters = token[0].RangeTo(token[2]);
 
                     foreach (var character in characters)
                         _grammarBuilder.AddTerminal(new Terminal(character.ToString()));
@@ -188,21 +188,7 @@ public class GrammarParser
             }
         }
     }
-
-    private List<char> ParseRangeOfChars(char a, char z)
-    {
-        var res = new List<char>();
-        
-        if (a < z)
-            for (int i = a; i <= z; i++)
-                res.Add((char)i);
-        else
-            for (int i = z; i >= a; i--)
-                res.Add((char)i);
-
-        return res;
-    }
-
+    
     private void ParseNonterminals(string[,] rules)
     {
         for (var i = 0; i < rules.GetLength(0); i++)
@@ -211,5 +197,5 @@ public class GrammarParser
     
     public string Source { get; set; }
 
-    private Lr1Grammar.Lr1GrammarBuilder _grammarBuilder;
+    private Lr1GrammarBuilder _grammarBuilder;
 }

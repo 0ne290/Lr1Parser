@@ -2,7 +2,7 @@ using Lr1Parser.Lr1Grammar;
 
 namespace Lr1Parser.Lr1Graph;
 
-public class StateItem
+public class StateItem : IEquatable<StateItem>
 {
     public StateItem(StateItem item, int recognizedPartIndexIncrement = 1)// Создаем новую Lr1-ситуацию, идентичную заданной, но с увеличенным индексом распознанной части
     {
@@ -24,8 +24,13 @@ public class StateItem
         UnrecognizedPart = Rule.RightSide.Skip(RecognizedPartIndex).ToArray();
     }
 
-    public bool Equals(StateItem item) => item.Rule == Rule && item.RecognizedPartIndex == RecognizedPartIndex &&
-                                        item.ReductionTerminal == ReductionTerminal;
+    public bool Equals(StateItem? item) => item != null && item.Rule == Rule &&
+                                           item.RecognizedPartIndex == RecognizedPartIndex &&
+                                           item.ReductionTerminal == ReductionTerminal;
+
+    public override bool Equals(object? obj) => obj is StateItem item && Equals(item);
+
+    public override int GetHashCode() => HashCode.Combine(Rule, RecognizedPartIndex, ReductionTerminal);
 
     public bool FirstUnrecognizedTokenEquals(IGrammarToken token) =>
         UnrecognizedPart.Count > 0 && UnrecognizedPart[0] == token;

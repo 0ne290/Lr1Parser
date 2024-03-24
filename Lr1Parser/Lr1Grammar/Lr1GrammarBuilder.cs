@@ -15,7 +15,7 @@ public class Lr1GrammarBuilder// В идеале надо было сделат�
         _rules.Add(new Rule(_nonterminals[0], new[] { _nonterminals[1] }));
     }
     
-    public Lr1Grammar Build() => new Lr1Grammar(_rules, _tokens, _nonterminals, _terminals, _rules[0], _nonterminals[0]);
+    public Lr1Grammar Build() => new(_rules, _tokens, _terminals, _nonterminals, _rules[0], _nonterminals[0], _terminals[0]);
     
     public bool AddRule(Rule rule)
     {
@@ -28,13 +28,13 @@ public class Lr1GrammarBuilder// В идеале надо было сделат�
         
         return true;
     }
-
-    public IEnumerable<Rule> GetRulesByLeftSide(Nonterminal leftSide) => _rules.Where(r => r.LeftSide == leftSide);
     
     public bool AddTerminal(Terminal terminal)
     {
         if (terminal.Value == "\0")
-            throw new Exception("В грамматике не должно содержаться терминала \"\\0\" - он зарезервирован системой в качестве маркера конца анализируемого текста."):
+            throw new Exception(
+                "В грамматике не должно содержаться терминала \"\\0\" - он зарезервирован системой в качестве маркера конца анализируемого текста.");
+        
         if (_terminals.Contains(terminal))
             return false;
         if (_terminals.Exists(t => t.Value == terminal.Value))
@@ -48,13 +48,12 @@ public class Lr1GrammarBuilder// В идеале надо было сделат�
 
     public Terminal GetTerminalByValue(string value) =>
         _terminals.Find(t => t.Value == value) ?? Terminal.Empty;
-
-    public IEnumerable<Terminal> GetKeywords() => _terminals.FindAll(t => t.Value.Length > 1);
     
     public bool AddNonterminal(Nonterminal nonterminal)
     {
-        if (nonterminal == "InitialNonterminal")
-            throw new Exception("В грамматике не должно содержаться нетерминала с именем \"InitialNonterminal\" - это имя зарезервировано системой для создания искусственных начальных нетерминала и правила.");
+        if (nonterminal.Value == "InitialNonterminal")
+            throw new Exception(
+                "В грамматике не должно содержаться нетерминала \"InitialNonterminal\" - он зарезервировано системой для создания искусственных начальных нетерминала и правила.");
         
         if (_nonterminals.Contains(nonterminal))
             return false;

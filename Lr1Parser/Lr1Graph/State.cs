@@ -4,23 +4,32 @@ namespace Lr1Parser.Lr1Graph;
 
 public class State
 {
+    public bool Equals(State state) => _items.SequenceEquivalent(state._items);
+
+    public bool IsEmpty() => _items.Count < 1;
+    
     public bool AddItem(StateItem item)
     {
-        if (Items.Exists(i => i.Equals(item)))
+        if (_items.Exists(i => i.Equals(item)))
             return false;
         
-        Items.Add(item);
+        _items.Add(item);
 
         return true;
     }
 
     public IEnumerable<StateItem> GetItemsWhereFirstUnrecognizedTokenIsNonterminal() =>
-        Items.Where(i => i.FirstUnrecognizedTokenIsNonterminal());
+        _items.FindAll(i => i.FirstUnrecognizedTokenIsNonterminal());
     
     public IEnumerable<StateItem> GetItemsByFirstUnrecognizedToken(IGrammarToken token) =>
-        Items.Where(i => i.FirstUnrecognizedTokenEquals(token));
+        _items.Where(i => i.FirstUnrecognizedTokenEquals(token));
 
-    public List<StateItem> Items { get; } = new();
+    public bool TryAddTransition(IGrammarToken token, State destinationState) => _transitions.TryAdd(token, destinationState);
 
-    public Dictionary<Terminal, State> Transitions { get; } = new();
+    public State PerformTransition(IGrammarToken token) =>
+        _transitions.TryGetValue(token, out var state) ? state : this;
+
+    private readonly List<StateItem> _items = new();
+
+    private readonly Dictionary<IGrammarToken, State> _transitions = new();
 }

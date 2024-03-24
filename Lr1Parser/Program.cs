@@ -15,20 +15,9 @@ internal static class Program
         
             grammar.Log();
 
-            var tokenParser = new TokenParser(File.ReadAllText("../../../Input/Sequence.txt"), File.ReadAllText("../../../Input/SpecialCharacters.txt"), grammar);
-        
-            var tokens = tokenParser.StringToTokens();
-
-            var tokenFile = new StreamWriter("../../../Logging/Tokens.txt", false);
-        
-            foreach (var token in tokens)
-                tokenFile.WriteLine($"{token.Value.Value} {token.IndexInSource}");
-        
-            tokenFile.Dispose();
+            var lr1Parser = new Parsers.Lr1Parser(File.ReadAllText("../../../Input/Sequence.txt"), File.ReadAllText("../../../Input/SpecialCharacters.txt"), grammar);
             
-            var lr1Parser = new Parsers.Lr1Parser(grammar, tokens);
-            
-            lr1Parser.Log();
+            lr1Parser.Parse();
 
             Console.Write("Нажмите любую клавишу для завершения программы...");
             Console.ReadKey();
@@ -37,7 +26,7 @@ internal static class Program
         }
         catch (Exception e)
         {
-            Console.WriteLine(e.Message);
+            Console.WriteLine(e);
             Console.Write($"{Environment.NewLine}Нажмите любую клавишу для завершения программы...");
             Console.ReadKey();
 

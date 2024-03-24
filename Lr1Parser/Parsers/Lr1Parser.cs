@@ -1,140 +1,74 @@
-using Lr1Parser.Lr1Grammar;
 using Lr1Parser.Lr1Graph;
 
 namespace Lr1Parser.Parsers;
 
 public class Lr1Parser
 {
-    public Lr1Parser(Lr1Grammar.Lr1GrammarBuilder grammarBuilder, IEnumerable<StringToken> tokens)
+    #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+    public Lr1Parser(string source, string specialCharacters, Lr1Grammar.Lr1Grammar grammar)
     {
-        _grammarBuilder = grammarBuilder;
-        _tokens = tokens;
+        _source = source.Replace("\0", string.Empty) + '\0';
+        _specialCharacters = specialCharacters;
+        _grammar = grammar;
         
-        CalculateInitialTerminals();
+        _tokenParser = new TokenParser(_source, _specialCharacters, _grammar);
+        _graphBuilder = new Lr1GraphBuilder(_grammar);
     }
+    #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
-    private void CalculateInitialTerminals()
+    public void Parse()
     {
-        foreach (var terminal in _grammarBuilder.Terminals)
-            _initialTerminalsByTokens.Add(terminal, new[] { terminal });
+        var tokens = _tokenParser.Parse();
+        var states = _graphBuilder.Build();
         
-        foreach (var nonterminal in _grammarBuilder.Nonterminals)
-            if (!_initialTerminalsByTokens.ContainsKey(nonterminal))
-                CalculateInitialTerminalsForNonterminal(nonterminal);
+        Console.WriteLine(states.Count());
+        
+        var tokenFile = new StreamWriter("../../../Logging/Tokens.txt", false);
+        
+        foreach (var token in tokens)
+            tokenFile.WriteLine($"{token.Value.Value} {token.IndexInSource}");
+        
+        tokenFile.Dispose();
     }
-
-    private void CalculateInitialTerminalsForNonterminal(Nonterminal nonterminal)
+    
+    public string Source
     {
-        var rules = _grammarBuilder.GetRulesByLeftSide(nonterminal);
-
-        var initialTerminalsForNonterminal = new List<Terminal>();
-        foreach (var rule in rules)
+        get => _source;
+        set
         {
-            if (rule.RightSide[0] == nonterminal)
-                continue;
-            
-            if (_initialTerminalsByTokens.TryGetValue(rule.RightSide[0], out var initialTerminals))
-                initialTerminalsForNonterminal.AddRange(initialTerminals);
-            else
-            {
-                CalculateInitialTerminalsForNonterminal((Nonterminal)rule.RightSide[0]);
-
-                if (_initialTerminalsByTokens.TryGetValue(rule.RightSide[0], out initialTerminals))
-                    initialTerminalsForNonterminal.AddRange(initialTerminals);
-                else
-                    throw new Exception(
-                        "Во время построения множеств символов-предшественников произошла ошибка. Обратитесь к разработчику.");
-            }
-        }
-        
-        _initialTerminalsByTokens.Add(nonterminal, initialTerminalsForNonterminal.Distinct());
-    }
-
-    private void BuildStateGraph()
-    {
-        var initialState = new State();
-        initialState.AddItem(new StateItem(_grammarBuilder.InitialRule, 0, Terminal.End));
-        CloseState(initialState);
-
-        var transitionStates = new Queue<State>();
-        
-        _states.Add(initialState);
-        transitionStates.Enqueue(initialState);
-
-        while (transitionStates.TryDequeue(out var transitionState))
-        {
-            foreach (var grammarToken in _grammarBuilder.Tokens)
-            {
-                Transition(transitionState, grammarToken);
-            }
+            _source = value.Replace("\0", string.Empty) + '\0';
+            _tokenParser.Source = _source;
         }
     }
 
-    private State Transition(State sourceState, IGrammarToken token)
+    public string SpecialCharacters
     {
-        var destinationState = new State();
-        
-        foreach (var item in sourceState.GetItemsByFirstUnrecognizedToken(token))
+        get => _specialCharacters;
+        set
         {
-            destinationState.AddItem(new StateItem(item));
+            _specialCharacters = value;
+            _tokenParser.SpecialCharacters = _specialCharacters;
         }
-        
-        CloseState(destinationState);
-
-        return destinationState;
     }
-
-    private void CloseState(State state)
+    
+    public Lr1Grammar.Lr1Grammar Grammar
     {
-        while (true)
+        get => _grammar;
+        set
         {
-            var numberAddedItems = 0;
-            
-            foreach (var item in state.GetItemsWhereFirstUnrecognizedTokenIsNonterminal())
-            {
-                var nonterminal = item.UnrecognizedPart[0];
-                foreach (var initialTerminal in _initialTerminalsByTokens[item.GetSecondUnrecognizedTokenOrReductionTerminal()])
-                {
-                    foreach (var rule in _grammarBuilder.GetRulesByLeftSide((Nonterminal)nonterminal))
-                    {
-                        if (state.AddItem(new StateItem(rule, 0, initialTerminal)))
-                            numberAddedItems++;
-                    }
-                }
-            }
-            
-            if (numberAddedItems < 1)
-                break;
+            _grammar = value;
+            _tokenParser.Grammar = _grammar;
+            _graphBuilder.Grammar = _grammar;
         }
     }
 
-    public void Log()
-    {
-        LogInitialTerminals();
-    }
+    private string _source;
 
-    private void LogInitialTerminals()
-    {
-        var initialTerminalsFile = new StreamWriter("../../../Logging/InitialTerminals.txt", false);
-        
-        foreach (var initialTerminalsPair in _initialTerminalsByTokens)
-        {
-            initialTerminalsFile.Write($"{initialTerminalsPair.Key.Value} = {{ ");
-            
-            foreach (var initialTerminal in initialTerminalsPair.Value)
-                initialTerminalsFile.Write($"{initialTerminal.Value} ");
-            
-            initialTerminalsFile.WriteLine("}");
-        }
-        
-        initialTerminalsFile.Dispose();
-    }
+    private string _specialCharacters;
 
-    private readonly Lr1Grammar.Lr1GrammarBuilder _grammarBuilder;
+    private Lr1Grammar.Lr1Grammar _grammar;
+    
+    private readonly TokenParser _tokenParser;
 
-    private readonly IEnumerable<StringToken> _tokens;
-
-    private readonly Dictionary<IGrammarToken, IEnumerable<Terminal>> _initialTerminalsByTokens = new();
-
-    private readonly List<State> _states = new();
+    private readonly Lr1GraphBuilder _graphBuilder;
 }
