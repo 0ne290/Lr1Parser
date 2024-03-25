@@ -1,4 +1,4 @@
-using Lr1Parser.Lr1Grammar;
+using Lr1Parser.Parsers.Lr1Parser.Lr1Grammar;
 
 namespace Lr1Parser.Parsers;
 
@@ -8,7 +8,7 @@ public class GrammarParser
     public GrammarParser(string source) => Source = source;
     #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     
-    public Lr1Grammar.Lr1Grammar Parse()
+    public Lr1Grammar Parse()
     {
         var rules = PrepareLines();
         

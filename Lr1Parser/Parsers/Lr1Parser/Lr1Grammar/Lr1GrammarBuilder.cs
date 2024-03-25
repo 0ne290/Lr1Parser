@@ -1,6 +1,6 @@
-namespace Lr1Parser.Lr1Grammar;
+namespace Lr1Parser.Parsers.Lr1Parser.Lr1Grammar;
 
-public class Lr1GrammarBuilder// В идеале надо было сделать так: добавить класс "Построитель грамматики" - в нем бы содержалась вся эта конченная логика с методами Get и Add. Класс парсера грамматики использовал бы этот построитель вместо самой грамматики и в конце своей логики он бы просто вызвал некоторый метод у построителя, который бы вызвал конструктор у класса "Грамматика", передав в качестве аргумента своё состояние. Сам класс "Грамматика" при этом был бы неизменяем (то, ради чего и стоит затевать всю суету) и содержал бы только ту логику, которая необходима клиентам для работы с грамматикой
+public class Lr1GrammarBuilder
 {
     public Lr1GrammarBuilder(Nonterminal initialNonterminal)
     {
@@ -12,10 +12,14 @@ public class Lr1GrammarBuilder// В идеале надо было сделат�
         _nonterminals.Add(initialNonterminal);
         _tokens.Add(_nonterminals[1]);
 
-        _rules.Add(new Rule(_nonterminals[0], new[] { _nonterminals[1] }));
+        //_rules.Add(new Rule(_nonterminals[0], new[] { _nonterminals[1] }));
+
+        _initialRule = new Rule(_nonterminals[0], new[] { _nonterminals[1] });
     }
+
+    private readonly Rule _initialRule;
     
-    public Lr1Grammar Build() => new(_rules, _tokens, _terminals, _nonterminals, _rules[0], _nonterminals[0], _terminals[0]);
+    public Lr1Grammar Build() => new(_rules, _tokens, _terminals, _nonterminals, _initialRule, _nonterminals[0], _terminals[0]);
     
     public bool AddRule(Rule rule)
     {

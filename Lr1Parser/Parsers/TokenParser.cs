@@ -1,10 +1,11 @@
 using System.Text;
+using Lr1Parser.Parsers.Lr1Parser.Lr1Grammar;
 
 namespace Lr1Parser.Parsers;
 
 public class TokenParser
 {
-    public TokenParser(string source, string specialCharacters, Lr1Grammar.Lr1Grammar grammar)
+    public TokenParser(string source, string specialCharacters, Lr1Grammar grammar)
     {
         Source = source;
         SpecialCharacters = specialCharacters;
@@ -68,5 +69,5 @@ public class TokenParser
     
     public string SpecialCharacters { get; set; }
     
-    public Lr1Grammar.Lr1Grammar Grammar { get; set; }
+    public Lr1Grammar Grammar { get; set; }
 }

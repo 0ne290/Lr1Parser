@@ -1,6 +1,6 @@
-using Lr1Parser.Lr1Grammar;
+using Lr1Parser.Parsers.Lr1Parser.Lr1Grammar;
 
-namespace Lr1Parser.Lr1Graph;
+namespace Lr1Parser.Parsers.Lr1Parser.Lr1Graph;
 
 public class Lr1GraphBuilder
 {
@@ -27,7 +27,13 @@ public class Lr1GraphBuilder
                 var destinationState = Transition(transitionState, grammarToken);
 
                 if (!destinationState.IsEmpty())
-                    transitionState.TryAddTransition(grammarToken, destinationState);
+                {
+                    if (transitionState.TryAddTransition(grammarToken, destinationState))
+                    {
+                        _transitionStates.Enqueue(transitionState);
+                        _transitionStates.Enqueue(destinationState);
+                    }
+                }
             }
         }
 
@@ -65,15 +71,11 @@ public class Lr1GraphBuilder
             
             foreach (var item in state.GetItemsWhereFirstUnrecognizedTokenIsNonterminal())
             {
-                var nonterminal = item.UnrecognizedPart[0];
+                var nonterminal = item.GetFirstUnrecognizedToken();
                 foreach (var initialTerminal in Grammar.GetInitialTerminalsByToken(item.GetSecondUnrecognizedTokenOrReductionTerminal()))
-                {
                     foreach (var rule in Grammar.GetRulesByLeftSide((Nonterminal)nonterminal))
-                    {
                         if (state.AddItem(new StateItem(rule, 0, initialTerminal)))
                             numberAddedItems++;
-                    }
-                }
             }
             
             if (numberAddedItems < 1)

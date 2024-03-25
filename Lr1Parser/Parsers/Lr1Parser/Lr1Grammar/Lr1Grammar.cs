@@ -1,4 +1,4 @@
-namespace Lr1Parser.Lr1Grammar;
+namespace Lr1Parser.Parsers.Lr1Parser.Lr1Grammar;
 
 public class Lr1Grammar
 {

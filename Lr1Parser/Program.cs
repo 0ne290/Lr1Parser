@@ -15,7 +15,7 @@ internal static class Program
         
             grammar.Log();
 
-            var lr1Parser = new Parsers.Lr1Parser(File.ReadAllText("../../../Input/Sequence.txt"), File.ReadAllText("../../../Input/SpecialCharacters.txt"), grammar);
+            var lr1Parser = new Parsers.Lr1Parser.Lr1Parser(File.ReadAllText("../../../Input/Sequence.txt"), File.ReadAllText("../../../Input/SpecialCharacters.txt"), grammar);
             
             lr1Parser.Parse();
 

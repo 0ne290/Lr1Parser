@@ -1,9 +1,1 @@
-public struct StructName
-{
-	struct StructName1
-	{
-		internal int x;
-	}
-	
-	private string[,]? Name;
-}
+real a, a, a;
