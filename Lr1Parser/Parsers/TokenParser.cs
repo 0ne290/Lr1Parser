@@ -59,7 +59,7 @@ public class TokenParser
             }
             
             tokens[i].Value = terminal;
-            tokens[i].IndexInSource = i - 1;
+            tokens[i].IndexInSource = i;
         }
 	
         return tokens.Where(t => !t.Value.IsEmpty());

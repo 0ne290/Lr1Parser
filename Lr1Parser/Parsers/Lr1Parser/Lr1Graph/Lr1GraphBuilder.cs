@@ -30,12 +30,16 @@ public class Lr1GraphBuilder
                 {
                     if (transitionState.TryAddTransition(grammarToken, destinationState))
                     {
-                        _transitionStates.Enqueue(transitionState);
-                        _transitionStates.Enqueue(destinationState);
+                        if (!_transitionStates.Contains(transitionState))
+                            _transitionStates.Enqueue(transitionState);
+                        if (!_transitionStates.Contains(destinationState))
+                            _transitionStates.Enqueue(destinationState);
                     }
                 }
             }
         }
+        
+        Console.WriteLine(_states.Count);
 
         return _states;
     }
@@ -74,7 +78,7 @@ public class Lr1GraphBuilder
                 var nonterminal = item.GetFirstUnrecognizedToken();
                 foreach (var initialTerminal in Grammar.GetInitialTerminalsByToken(item.GetSecondUnrecognizedTokenOrReductionTerminal()))
                     foreach (var rule in Grammar.GetRulesByLeftSide((Nonterminal)nonterminal))
-                        if (state.AddItem(new StateItem(rule, 0, initialTerminal)))
+                        if (state.AddItem(new StateItem(rule, 0, initialTerminal)))// Сделать Lr1-ситуации уникальными (т. е. чтобы на каждые одинаковые по смыслу ситуации приходился один и тот же объект - прямо как коллекции объектов типов Terminal, Nonterminal и Rule в классах Lr1Grammar и Lr1GrammarBuilder)
                             numberAddedItems++;
             }
             

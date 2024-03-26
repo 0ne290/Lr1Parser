@@ -10,8 +10,12 @@ public class StateItem : IEquatable<StateItem>
         _recognizedPartIndex = item._recognizedPartIndex + recognizedPartIndexIncrement;
         ReductionTerminal = item.ReductionTerminal;
 
-        RecognizedPart = Rule.RightSide.Take(_recognizedPartIndex).ToArray();
-        UnrecognizedPart = Rule.RightSide.Skip(_recognizedPartIndex).ToArray();
+        var mutableUnrecognizedPart = new IGrammarToken[Rule.RightSide.Count - _recognizedPartIndex];
+
+        for (var i = 0; i < mutableUnrecognizedPart.Length; i++)
+            mutableUnrecognizedPart[i] = Rule.RightSide[i + _recognizedPartIndex];
+
+        UnrecognizedPart = mutableUnrecognizedPart;
     }
     
     public StateItem(Rule rule, int recognizedPartIndex, Terminal reductionTerminal)
@@ -19,12 +23,14 @@ public class StateItem : IEquatable<StateItem>
         Rule = rule;
         _recognizedPartIndex = recognizedPartIndex;
         ReductionTerminal = reductionTerminal;
+        
+        var mutableUnrecognizedPart = new IGrammarToken[Rule.RightSide.Count - _recognizedPartIndex];
 
-        RecognizedPart = Rule.RightSide.Take(_recognizedPartIndex).ToArray();
-        UnrecognizedPart = Rule.RightSide.Skip(_recognizedPartIndex).ToArray();
+        for (var i = 0; i < mutableUnrecognizedPart.Length; i++)
+            mutableUnrecognizedPart[i] = Rule.RightSide[i + _recognizedPartIndex];
+
+        UnrecognizedPart = mutableUnrecognizedPart;
     }
-
-    public void Log() => Console.Write($"Lef: {Rule.LeftSide.Value}, Red: {(ReductionTerminal.Value == "\0" ? "\\0" : ReductionTerminal.Value)}, Ind: {_recognizedPartIndex}; -=- ");
 
     public bool Equals(StateItem? item) => item != null && item.Rule == Rule &&
                                            item._recognizedPartIndex == _recognizedPartIndex &&
@@ -49,8 +55,6 @@ public class StateItem : IEquatable<StateItem>
     public Rule Rule { get; }
 
     private readonly int _recognizedPartIndex;// Индекс токена правой части, ДО (т. е. НЕ включая) которого правая часть распознана. Пример: индекс равен 0 --> правило распознано до первого токена, первым следующим распознанным токеном будет первый токен прввила
-    
-    private IReadOnlyList<IGrammarToken> RecognizedPart { get; }
     
     private IReadOnlyList<IGrammarToken> UnrecognizedPart { get; }
     

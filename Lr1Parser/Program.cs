@@ -19,15 +19,14 @@ internal static class Program
             
             lr1Parser.Parse();
 
-            Console.Write("Нажмите любую клавишу для завершения программы...");
+            Console.Write("Входная последовательность соответствует грамматике. Нажмите любую клавишу для завершения программы...");
             Console.ReadKey();
 
             return 0;
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            Console.Write($"{Environment.NewLine}Нажмите любую клавишу для завершения программы...");
+            Console.Write($"{e.Message} Нажмите любую клавишу для завершения программы...");
             Console.ReadKey();
 
             return 1;

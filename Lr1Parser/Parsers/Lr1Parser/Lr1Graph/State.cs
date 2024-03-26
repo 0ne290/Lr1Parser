@@ -10,21 +10,15 @@ public class State
     
     public bool AddItem(StateItem item)
     {
-        if (_items.Exists(i => i.Equals(item)))
-            return false;
+        foreach (var i in _items)
+        {
+            if (i.Equals(item))
+                return false;
+        }
         
         _items.Add(item);
 
         return true;
-    }
-
-    public void Log()
-    {
-        foreach (var item in _items)
-        {
-            item.Log();
-        }
-        Console.WriteLine();
     }
 
     public IEnumerable<StateItem> GetItemsWhereFirstUnrecognizedTokenIsNonterminal() =>

@@ -55,7 +55,7 @@ public class Lr1Parser
                 
                 var position = Source.GetPosition(tokens[i].IndexInSource);
                 throw new Exception(
-                    $"Неожиданный токен \"{tokens[i].Value.Value}\". Номер строки: {position.LineNumber}, номер токена: {position.CharNumber - 1}.");
+                    $"Неожиданный токен \"{tokens[i].Value.Value}\". Номер строки: {position.LineNumber}, номер токена: {position.CharNumber - 1}. Вместо этого токена ожидался один из: {{ {GetExpectedTerminals(table, stateStack)} }}.");
             }
 
             if (tableAction is Shift shift)
@@ -77,12 +77,19 @@ public class Lr1Parser
                     stateStack.Pop();
                 }
 
+                i--;
+
                 token = reduction.Nonterminal;
             }
             else if (tableAction is Halt)
                 return;
         }
 
+        throw new Exception($"Следующим токеном ожидался один из: {{ {GetExpectedTerminals(table, stateStack)} }}.");
+    }
+
+    private string GetExpectedTerminals(Lr1Table.Lr1Table table, Stack<State> stateStack)
+    {
         var tokensByState = table.GetTokensByState(stateStack.Peek());
 
         var expectedTerminals = new List<Terminal>();
@@ -92,10 +99,9 @@ public class Lr1Parser
 
         var expectedTerminalsWithoutDuplicates = expectedTerminals.Distinct().Select(t => "\"" + t.Value + "\"");
 
-        throw new Exception(
-            $"Следующим токеном ожидался один из: {{ {string.Join(", ", expectedTerminalsWithoutDuplicates)} }}");
+        return string.Join(", ", expectedTerminalsWithoutDuplicates);
     }
-    
+
     public string Source
     {
         get => _source;

@@ -57,7 +57,7 @@ public class Lr1GrammarBuilder
     {
         if (nonterminal.Value == "InitialNonterminal")
             throw new Exception(
-                "В грамматике не должно содержаться нетерминала \"InitialNonterminal\" - он зарезервировано системой для создания искусственных начальных нетерминала и правила.");
+                "В грамматике не должно содержаться нетерминала \"InitialNonterminal\" - он зарезервирован системой для создания искусственных начальных нетерминала и правила.");
         
         if (_nonterminals.Contains(nonterminal))
             return false;

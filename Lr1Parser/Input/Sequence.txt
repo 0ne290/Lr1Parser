@@ -1,1 +1,34 @@
-real a, a, a;
+public struct axg
+{
+	struct aaxec
+	{
+		internal int zwfa;
+		int agh;
+		char bja;
+		
+		struct aerg
+        {
+        	internal int? asdz;
+        	int[]? azxwe;
+        	char[] aqex;
+        }
+	}
+	
+	private string aaex;
+	
+	public string wddxa;
+	
+	struct feda
+    {
+    	internal int a;
+    	int a;
+    	char a;
+    	
+    	struct a
+        {
+        	internal int a;
+        	int a;
+        	char a;
+        }
+    }
+}
