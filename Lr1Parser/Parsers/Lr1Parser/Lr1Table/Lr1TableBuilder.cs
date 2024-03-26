@@ -29,7 +29,8 @@ public class Lr1TableBuilder
                 }
                 else
                 {
-                    table[state, item.ReductionTerminal] = new Reduction { Nonterminal = item.Rule.LeftSide };
+                    table[state, item.ReductionTerminal] = new Reduction
+                        { Nonterminal = item.Rule.LeftSide, NumberOfReducedTokens = item.Rule.RightSide.Count };
                 }
             }
         }

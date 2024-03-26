@@ -1,3 +1,4 @@
+InitialNonterminal = VARS
 VARS = real IDLIST ;
 IDLIST = IDLIST , ID
 IDLIST = ID

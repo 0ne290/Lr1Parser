@@ -64,14 +64,23 @@ public class Lr1Grammar
     private void LogRules()
     {
         var rulesFile = new StreamWriter("../../../Logging/Rules.txt", false);
+        
+        rulesFile.Write($"{InitialRule.LeftSide.Value} =");
+
+        foreach (var token in InitialRule.RightSide)
+        {
+            rulesFile.Write($" {token.Value}");
+        }
+
+        rulesFile.WriteLine();
 
         foreach (var rule in Rules)
         {
             rulesFile.Write($"{rule.LeftSide.Value} =");
 
-            foreach (var t in rule.RightSide)
+            foreach (var token in rule.RightSide)
             {
-                rulesFile.Write($" {t.Value}");
+                rulesFile.Write($" {token.Value}");
             }
 
             rulesFile.WriteLine();
@@ -86,10 +95,10 @@ public class Lr1Grammar
         
         foreach (var initialTerminalsPair in _initialTerminalsByTokens)
         {
-            initialTerminalsFile.Write($"{initialTerminalsPair.Key.Value} = {{ ");
+            initialTerminalsFile.Write($"{(initialTerminalsPair.Key.Value == FinalTerminal.Value ? "\\0" : initialTerminalsPair.Key.Value)} = {{ ");
             
             foreach (var initialTerminal in initialTerminalsPair.Value)
-                initialTerminalsFile.Write($"{initialTerminal.Value} ");
+                initialTerminalsFile.Write($"{(initialTerminal.Value == FinalTerminal.Value ? "\\0" : initialTerminal.Value)} ");
             
             initialTerminalsFile.WriteLine("}");
         }
@@ -102,7 +111,7 @@ public class Lr1Grammar
         var terminalsFile = new StreamWriter("../../../Logging/Terminals.txt", false);
         
         foreach (var terminal in Terminals)
-            terminalsFile.WriteLine(terminal.Value);
+            terminalsFile.WriteLine((terminal.Value == FinalTerminal.Value ? "\\0" : terminal.Value));
         
         terminalsFile.Dispose();
     }

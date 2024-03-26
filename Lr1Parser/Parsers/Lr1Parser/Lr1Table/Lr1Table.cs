@@ -5,6 +5,17 @@ namespace Lr1Parser.Parsers.Lr1Parser.Lr1Table;
 
 public class Lr1Table
 {
+    public IEnumerable<IGrammarToken> GetTokensByState(State state)
+    {
+        var res = new List<IGrammarToken>();
+
+        foreach (var token in _tokens)
+            if (_table.ContainsKey(Hash(state, token)))
+                res.Add(token);
+
+        return res.Distinct();
+    }
+    
     public ITableAction this[State state, IGrammarToken token]
     {
         get => _table[Hash(state, token)];
@@ -34,10 +45,16 @@ public class Lr1Table
         }
     }
     
-    private void AddAction(State state, IGrammarToken token, ITableAction action) =>
-            _table.Add(Hash(state, token), action);
+    private void AddAction(State state, IGrammarToken token, ITableAction action)
+    {
+        _tokens.Add(token);
+        
+        _table.Add(Hash(state, token), action);
+    }
 
     private static int Hash(State state, IGrammarToken token) => HashCode.Combine(state, token);
     
     private readonly Dictionary<int, ITableAction> _table = new();
+
+    private readonly List<IGrammarToken> _tokens = new();
 }

@@ -4,7 +4,7 @@ namespace Lr1Parser.Parsers;
 
 public class StringToken
 {
-    public IGrammarToken Value { get; set; } = Terminal.Empty;
+    public Terminal Value { get; set; } = Terminal.Empty;
     
     public int IndexInSource { get; set; }
 }

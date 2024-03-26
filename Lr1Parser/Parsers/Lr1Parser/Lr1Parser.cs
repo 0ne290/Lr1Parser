@@ -1,3 +1,4 @@
+using Lr1Parser.Parsers.Lr1Parser.Lr1Grammar;
 using Lr1Parser.Parsers.Lr1Parser.Lr1Graph;
 using Lr1Parser.Parsers.Lr1Parser.Lr1Table;
 
@@ -20,27 +21,79 @@ public class Lr1Parser
 
     public void Parse()
     {
-        var tokens = _tokenParser.Parse();
-        var graph = _graphBuilder.Build();
+        var tokens = _tokenParser.Parse().ToArray();
+        var graph = _graphBuilder.Build().ToArray();
 
-        var i = 0;
-        foreach (var state in graph)
-        {
-            Console.Write($"State {i}; ");
-            i++;
-            state.Log();
-        }
-        
         var tokenFile = new StreamWriter("../../../Logging/Tokens.txt", false);
         
-        foreach (var token in tokens)
-            tokenFile.WriteLine($"{token.Value.Value} {token.IndexInSource}");
+        foreach (var t in tokens)
+            tokenFile.WriteLine($"{(t.Value.Value == Grammar.FinalTerminal.Value ? "\\0" : t.Value.Value)} {t.IndexInSource}");
         
         tokenFile.Dispose();
 
         _tableBuilder.Graph = graph;
 
         var table = _tableBuilder.Build();
+
+        var tokenStack = new Stack<IGrammarToken>();
+        var stateStack = new Stack<State>();
+        stateStack.Push(graph[0]);
+
+        var i = 0;
+        IGrammarToken token = tokens[i].Value;
+        while (true)
+        {
+            ITableAction tableAction;
+            try
+            {
+                tableAction = table[stateStack.Peek(), token];
+            }
+            catch
+            {
+                if (tokens[i].Value == _grammar.FinalTerminal)
+                    break;
+                
+                var position = Source.GetPosition(tokens[i].IndexInSource);
+                throw new Exception(
+                    $"Неожиданный токен \"{tokens[i].Value.Value}\". Номер строки: {position.LineNumber}, номер токена: {position.CharNumber - 1}.");
+            }
+
+            if (tableAction is Shift shift)
+            {
+                stateStack.Push(shift.State);
+                tokenStack.Push(token);
+                i++;
+
+                if (i == tokens.Length)
+                    break;
+                
+                token = tokens[i].Value;
+            }
+            else if (tableAction is Reduction reduction)
+            {
+                for (var j = 0; j < reduction.NumberOfReducedTokens; j++)
+                {
+                    tokenStack.Pop();
+                    stateStack.Pop();
+                }
+
+                token = reduction.Nonterminal;
+            }
+            else if (tableAction is Halt)
+                return;
+        }
+
+        var tokensByState = table.GetTokensByState(stateStack.Peek());
+
+        var expectedTerminals = new List<Terminal>();
+
+        foreach (var c in tokensByState)
+            expectedTerminals.AddRange(_grammar.GetInitialTerminalsByToken(c));
+
+        var expectedTerminalsWithoutDuplicates = expectedTerminals.Distinct().Select(t => "\"" + t.Value + "\"");
+
+        throw new Exception(
+            $"Следующим токеном ожидался один из: {{ {string.Join(", ", expectedTerminalsWithoutDuplicates)} }}");
     }
     
     public string Source
