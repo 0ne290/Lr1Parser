@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Lr1Parser.Parsers.Lr1Parser.Lr1Grammar;
 
 namespace Lr1Parser.Parsers.Lr1Parser.Lr1Graph;
@@ -20,6 +21,8 @@ public class Lr1GraphBuilder
         _states.Add(initialState);
         _transitionStates.Enqueue(initialState);
 
+        var sw = new Stopwatch();
+        sw.Start();
         while (_transitionStates.TryDequeue(out var transitionState))
         {
             foreach (var grammarToken in Grammar.Tokens)
@@ -36,6 +39,12 @@ public class Lr1GraphBuilder
                             _transitionStates.Enqueue(destinationState);
                     }
                 }
+            }
+
+            if (sw.ElapsedMilliseconds > 5000)
+            {
+                Console.WriteLine($"{_transitionStates.Count} {_states.Count}");
+                sw.Restart();
             }
         }
         
