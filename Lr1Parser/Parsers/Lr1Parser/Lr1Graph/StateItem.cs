@@ -4,21 +4,7 @@ namespace Lr1Parser.Parsers.Lr1Parser.Lr1Graph;
 
 public class StateItem : IEquatable<StateItem>
 {
-    public StateItem(StateItem item, int recognizedPartIndexIncrement = 1)// Создаем новую Lr1-ситуацию, идентичную заданной, но с увеличенным индексом распознанной части
-    {
-        Rule = item.Rule;
-        _recognizedPartIndex = item._recognizedPartIndex + recognizedPartIndexIncrement;
-        ReductionTerminal = item.ReductionTerminal;
-
-        var mutableUnrecognizedPart = new IGrammarToken[Rule.RightSide.Count - _recognizedPartIndex];
-
-        for (var i = 0; i < mutableUnrecognizedPart.Length; i++)
-            mutableUnrecognizedPart[i] = Rule.RightSide[i + _recognizedPartIndex];
-
-        UnrecognizedPart = mutableUnrecognizedPart;
-    }
-    
-    public StateItem(Rule rule, int recognizedPartIndex, Terminal reductionTerminal)
+    private StateItem(Rule rule, int recognizedPartIndex, Terminal reductionTerminal)
     {
         Rule = rule;
         _recognizedPartIndex = recognizedPartIndex;
@@ -30,6 +16,22 @@ public class StateItem : IEquatable<StateItem>
             mutableUnrecognizedPart[i] = Rule.RightSide[i + _recognizedPartIndex];
 
         UnrecognizedPart = mutableUnrecognizedPart;
+    }
+
+    // Создаем новую (либо получаем уже имеющуюся, если она была создана ранее) Lr1-ситуацию, идентичную заданной, но с увеличенным индексом распознанной части
+    public static StateItem GetItem(StateItem item, int recognizedPartIndexIncrement = 1) => GetItem(item.Rule, item._recognizedPartIndex + recognizedPartIndexIncrement, item.ReductionTerminal);
+
+    public static StateItem GetItem(Rule rule, int recognizedPartIndex, Terminal reductionTerminal)
+    {
+        foreach (var i in _items)
+            if (i.Rule == rule && i._recognizedPartIndex == recognizedPartIndex && i.ReductionTerminal == reductionTerminal)
+                return item;
+
+        var item = new StateItem(rule, recognizedPartIndex, reductionTerminal)
+
+        _items.Add(item);
+
+        return item;
     }
 
     public bool Equals(StateItem? item) => item != null && item.Rule == Rule &&
@@ -59,4 +61,6 @@ public class StateItem : IEquatable<StateItem>
     private IReadOnlyList<IGrammarToken> UnrecognizedPart { get; }
     
     public Terminal ReductionTerminal { get; }
+
+    private static readonly List<StateItem> _items = new();
 }
