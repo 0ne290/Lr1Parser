@@ -19,17 +19,17 @@ public class StateItem : IEquatable<StateItem>
     }
 
     // Создаем новую (либо получаем уже имеющуюся, если она была создана ранее) Lr1-ситуацию, идентичную заданной, но с увеличенным индексом распознанной части
-    public static StateItem Get(StateItem item, int recognizedPartIndexIncrement = 1) => GetItem(item.Rule, item._recognizedPartIndex + recognizedPartIndexIncrement, item.ReductionTerminal);
+    public static StateItem Get(StateItem item, int recognizedPartIndexIncrement = 1) => Get(item.Rule, item._recognizedPartIndex + recognizedPartIndexIncrement, item.ReductionTerminal);
 
     public static StateItem Get(Rule rule, int recognizedPartIndex, Terminal reductionTerminal)
     {
-        foreach (var i in _items)
+        foreach (var i in Items)
             if (i.Rule == rule && i._recognizedPartIndex == recognizedPartIndex && i.ReductionTerminal == reductionTerminal)
-                return item;
+                return i;
 
-        var item = new StateItem(rule, recognizedPartIndex, reductionTerminal)
+        var item = new StateItem(rule, recognizedPartIndex, reductionTerminal);
 
-        _items.Add(item);
+        Items.Add(item);
 
         return item;
     }
@@ -62,5 +62,5 @@ public class StateItem : IEquatable<StateItem>
     
     public Terminal ReductionTerminal { get; }
 
-    private static readonly List<StateItem> _items = new();
+    private static readonly List<StateItem> Items = new();
 }

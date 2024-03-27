@@ -12,14 +12,15 @@ public class Lr1Parser
         _source = source.Replace("\0", string.Empty) + '\0';
         _specialCharacters = specialCharacters;
         _grammar = grammar;
-        
+
         _tokenParser = new TokenParser(_source, _specialCharacters, _grammar);
         _graphBuilder = new Lr1GraphBuilder(_grammar);
         _tableBuilder = new Lr1TableBuilder { Grammar = _grammar };
+        _nameParser = new NameParser();
     }
     #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
-    public void Parse()
+    public void Parse(bool valideNames)
     {
         var tokens = _tokenParser.Parse().ToArray();
         var graph = _graphBuilder.Build().ToArray();
@@ -82,7 +83,12 @@ public class Lr1Parser
                 token = reduction.Nonterminal;
             }
             else if (tableAction is Halt)
+            {
+                if (valideNames)
+                    _nameParser.Parse(tokens, _source);
+                
                 return;
+            }
         }
 
         throw new Exception($"Следующим токеном ожидался один из: {{ {GetExpectedTerminals(table, stateStack)} }}.");
@@ -145,4 +151,6 @@ public class Lr1Parser
     private readonly Lr1GraphBuilder _graphBuilder;
 
     private readonly Lr1TableBuilder _tableBuilder;
+
+    private readonly NameParser _nameParser;
 }

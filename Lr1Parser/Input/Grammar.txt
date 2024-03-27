@@ -9,4 +9,4 @@ BUILTINTYPE = int | double | bool | char | string
 MASSIVE = [ DIMENSION ] | [ ]
 DIMENSION = DIMENSION , | ,
 NULLABLE = ?
-IDENTIFIER = IDENTIFIER a-z | a-z | IDENTIFIER A-Z | A-Z
+IDENTIFIER = IDENTIFIER a-n | a-n

@@ -1,33 +1,33 @@
-public struct axg
+public struct ag
 {
-	struct aaxec
+	struct aeg
 	{
-		internal int zwfa;
+		internal int ag;
 		int agh;
-		char bja;
+		char[] bja;
 		
-		struct aerg
+		struct aegc
         {
-        	internal int? asdz;
-        	int[]? azxwe;
-        	char[] aqex;
+        	internal int? ad;
+        	int[,]? ae;
+        	char[,,] e;
         }
 	}
 	
-	private string aaex;
+	private string aae;
 	
-	public string wddxa;
+	public string dda;
 	
 	struct feda
     {
-    	internal int a;
+    	internal int b;
     	int a;
-    	char a;
+    	char c;
     	
-    	struct a
+    	struct e
         {
-        	internal int a;
-        	int a;
+        	internal int f;
+        	int g;
         	char a;
         }
     }
