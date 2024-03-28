@@ -49,19 +49,10 @@ public class NameParser
                 node = node.GoToChild();
                 continue;
             }
-            if (nameTokens[i].Value == ";")
+            if (nameTokens[i].Value == ";" || nameTokens[i].Value == "}")
             {
                 node = node.GoToParent();
-                
-                if (nameTokens[i + 1].Value != "}")
-                    node = node.GoToChild();
-                
-                continue;
-            }
-            if (nameTokens[i].Value == "}")
-            {
-                node = node.GoToParent();
-                
+				
                 if (i == nameTokens.Count - 1)
                     break;
                 
