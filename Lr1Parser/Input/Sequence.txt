@@ -10,13 +10,13 @@ public struct ag
         {
         	internal int? ad;
         	int[,]? ae, bda;
-        	char[,,] e;
+        	char[,,] @e;
         }
 	}
 	
-	private string aae;
+	private string @decimal;
 	
-	public string dda;
+	public string dda, @add;
 	
 	struct feda
     {

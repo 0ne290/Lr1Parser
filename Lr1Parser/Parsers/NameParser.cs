@@ -4,7 +4,7 @@ public class NameParser
 {
     public void Parse(IEnumerable<StringToken> stringTokens, string source)
     {
-        var stringTokensList = stringTokens.ToList();
+        var stringTokensList = stringTokens.Where(t => t.Value.Value != "@").ToList();
 
         for (var j = 0; j < stringTokensList.Count;)
         {
