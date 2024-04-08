@@ -4,9 +4,19 @@ public class NameParser
 {
     public void Parse(IEnumerable<StringToken> stringTokens, string source)
     {
-        stringTokens = stringTokens.Where(t => t.Value.Value.Length == 1 &&
-                                               (char.IsLetter(t.Value.Value[0]) || t.Value.Value[0] == '{' ||
-                                                t.Value.Value[0] == '}' || t.Value.Value[0] == ';'));
+        var stringTokensList = stringTokens.ToList();
+
+        for (var j = 0; j < stringTokensList.Count;)
+        {
+            if (stringTokensList[j].Value.Value == "," && !char.IsLetter(stringTokensList[j + 1].Value.Value[0]))
+                stringTokensList.RemoveAt(j);
+            else
+                j++;
+        }
+        
+        stringTokens = stringTokensList.Where(t => t.Value.Value.Length == 1 &&
+                                                   (char.IsLetter(t.Value.Value[0]) || t.Value.Value[0] == '{' ||
+                                                    t.Value.Value[0] == '}' || t.Value.Value[0] == ';' || t.Value.Value[0] == ','));
         
         var nameToken = new NameToken();
         var nameTokens = new List<NameToken>();
@@ -47,6 +57,14 @@ public class NameParser
             if (nameTokens[i].Value == "{")
             {
                 node = node.GoToChild();
+                continue;
+            }
+            if (nameTokens[i].Value == ",")
+            {
+                node = node.GoToParent();
+
+                node = node.GoToChild();
+
                 continue;
             }
             if (nameTokens[i].Value == ";" || nameTokens[i].Value == "}")

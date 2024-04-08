@@ -9,7 +9,7 @@ public struct ag
 		struct aegc
         {
         	internal int? ad;
-        	int[,]? ae;
+        	int[,]? ae, bda;
         	char[,,] e;
         }
 	}
