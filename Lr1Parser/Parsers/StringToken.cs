@@ -6,5 +6,7 @@ public class StringToken
 {
     public Terminal Value { get; set; } = Terminal.Empty;
     
+    public string StringValue { get; set; } = string.Empty;
+    
     public int IndexInSource { get; set; }
 }

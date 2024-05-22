@@ -32,7 +32,7 @@ internal static class Program
         {
             Console.Write($"{e.Message} Нажмите любую клавишу для завершения программы...");
             Console.ReadKey();
-
+            
             return 1;
         }
     }

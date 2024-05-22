@@ -8,15 +8,15 @@ public class NameParser
 
         for (var j = 0; j < stringTokensList.Count;)
         {
-            if (stringTokensList[j].Value.Value == "," && !char.IsLetter(stringTokensList[j + 1].Value.Value[0]))
+            if (stringTokensList[j].StringValue == "," && !char.IsLetter(stringTokensList[j + 1].StringValue[0]))
                 stringTokensList.RemoveAt(j);
             else
                 j++;
         }
         
-        stringTokens = stringTokensList.Where(t => t.Value.Value.Length == 1 &&
-                                                   (char.IsLetter(t.Value.Value[0]) || t.Value.Value[0] == '{' ||
-                                                    t.Value.Value[0] == '}' || t.Value.Value[0] == ';' || t.Value.Value[0] == ','));
+        stringTokens = stringTokensList.Where(t => t.StringValue.Length == 1 &&
+                                                   (char.IsLetter(t.StringValue[0]) || t.StringValue[0] == '{' ||
+                                                    t.StringValue[0] == '}' || t.StringValue[0] == ';' || t.StringValue[0] == ','));
         
         var nameToken = new NameToken();
         var nameTokens = new List<NameToken>();
@@ -24,12 +24,12 @@ public class NameParser
         
         foreach (var stringToken in stringTokens)
         {
-            if (char.IsLetter(stringToken.Value.Value[0]))
+            if (char.IsLetter(stringToken.StringValue[0]))
             {
                 if (i < 1)
                     nameToken.IndexInSource = stringToken.IndexInSource;
                 
-                nameToken.Value += stringToken.Value.Value;
+                nameToken.Value += stringToken.StringValue;
 
                 i++;
             }
@@ -37,12 +37,12 @@ public class NameParser
             {
                 if (i < 1)
                     nameTokens.Add(new NameToken
-                        { Value = stringToken.Value.Value, IndexInSource = stringToken.IndexInSource });
+                        { Value = stringToken.StringValue, IndexInSource = stringToken.IndexInSource });
                 else
                 {
                     nameTokens.Add(nameToken);
                     nameTokens.Add(new NameToken
-                        { Value = stringToken.Value.Value, IndexInSource = stringToken.IndexInSource });
+                        { Value = stringToken.StringValue, IndexInSource = stringToken.IndexInSource });
                     nameToken = new NameToken();
                     i = 0;
                 }

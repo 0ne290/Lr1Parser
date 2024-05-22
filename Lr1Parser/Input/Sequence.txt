@@ -2,21 +2,24 @@ public struct ag
 {
 	struct aeg
 	{
-		internal int ag;
+		internal int @decimal;
 		int agh;
 		char[] bja;
 		
 		struct aegc
         {
         	internal int? ad;
-        	int[,]? ae, bda;
+        	int[,]? ae, @System;
+			public @System.@Decimal @decimal;
+			public System.@Decimal @Decimal;
+			public decimal Decimal;
         	char[,,] @e;
         }
 	}
 	
 	private string @decimal;
 	
-	public string dda, @add;
+	public System.Decimal dda, @add;
 	
 	struct feda
     {

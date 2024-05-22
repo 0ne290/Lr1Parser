@@ -134,9 +134,10 @@ public class Lr1Grammar
             : Enumerable.Empty<Terminal>();
 
     public Terminal GetTerminalByValue(string value) =>
-        Terminals.FirstOrDefault(t => t.Value == value, Terminal.Empty);
+        Terminals.FirstOrDefault(t => t.Value == value || (value.Length == 1 && t.Value.Length == 3 && t.Value[1] == '-' && value[0] >= t.Value[0] && value[0] <= t.Value[2]), Terminal.Empty);
 
-    public IEnumerable<Terminal> GetKeywords() => Terminals.Where(t => t.Value.Length > 1);
+    public IEnumerable<Terminal> GetKeywords() => Terminals.Where(t => t.Value.Length > 1 &&
+                                                                       !(t.Value.Length == 3 && t.Value[1] == '-'));
 
     public IEnumerable<Rule> Rules { get; }
 

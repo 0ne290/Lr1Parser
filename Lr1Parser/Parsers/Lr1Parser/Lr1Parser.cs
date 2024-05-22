@@ -28,7 +28,7 @@ public class Lr1Parser
         var tokenFile = new StreamWriter("../../../Logging/Tokens.txt", false);
         
         foreach (var t in tokens)
-            tokenFile.WriteLine($"{(t.Value.Value == Grammar.FinalTerminal.Value ? "\\0" : t.Value.Value)} {t.IndexInSource}");
+            tokenFile.WriteLine($"{(t.Value.Value == Grammar.FinalTerminal.Value ? "\\0" : t.StringValue)} {t.IndexInSource}");
         
         tokenFile.Dispose();
 
@@ -56,7 +56,7 @@ public class Lr1Parser
                 
                 var position = Source.GetPosition(tokens[i].IndexInSource);
                 throw new Exception(
-                    $"Неожиданный токен \"{tokens[i].Value.Value}\". Номер строки: {position.LineNumber}, номер токена: {position.CharNumber - 1}. Вместо этого токена ожидался один из: {{ {GetExpectedTerminals(table, stateStack)} }}.");
+                    $"Неожиданный токен \"{tokens[i].StringValue}\". Номер строки: {position.LineNumber}, номер токена: {position.CharNumber - 1}. Вместо этого токена ожидался один из: {{ {GetExpectedTerminals(table, stateStack)} }}.");
             }
 
             if (tableAction is Shift shift)

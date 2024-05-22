@@ -37,6 +37,8 @@ public class TokenParser
             {
                 tokens[match.Index].Value = keyword;
                 
+                tokens[match.Index].StringValue = keyword.Value;
+                
                 tokens[match.Index].IndexInSource = match.Index;
                 copyOfSource.Replace(keyword.Value, new string(' ', keyword.Value.Length), match.Index + 1, keyword.Value.Length);
                 
@@ -59,6 +61,7 @@ public class TokenParser
             }
             
             tokens[i].Value = terminal;
+            tokens[i].StringValue = copyOfSource[i].ToString();
             tokens[i].IndexInSource = i;
         }
 	

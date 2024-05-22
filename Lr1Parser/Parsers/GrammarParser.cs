@@ -83,7 +83,7 @@ public class GrammarParser
                         continue;
                     }
 
-                    if (RegularExpressions.CharRange().IsMatch(subruleRightSideToken))
+                    /*if (RegularExpressions.CharRange().IsMatch(subruleRightSideToken))
                     {
                         var characters = subruleRightSideToken[0].RangeTo(subruleRightSideToken[2]);
                         
@@ -103,7 +103,7 @@ public class GrammarParser
                         subruleRightSideTokenOptions.Add(charactersTerminals);
 
                         continue;
-                    }
+                    }*/
 
                     if (RegularExpressions.EscapedCharRange().IsMatch(subruleRightSideToken))
                     {
@@ -162,7 +162,7 @@ public class GrammarParser
                 if (token == "|")
                     continue;
 
-                if (RegularExpressions.CharRange().IsMatch(token))
+                /*if (RegularExpressions.CharRange().IsMatch(token))
                 {
                     var characters = token[0].RangeTo(token[2]);
 
@@ -170,7 +170,7 @@ public class GrammarParser
                         _grammarBuilder.AddTerminal(new Terminal(character.ToString()));
                     
                     continue;
-                }
+                }*/
                 
                 if (RegularExpressions.EscapedCharRange().IsMatch(token))
                 {
